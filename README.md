@@ -1,7 +1,7 @@
 readSim
 =======
 
-Perl and R pipeline for simulating metagenomic reads from a highly complex community 
+A Perl and R pipeline for simulating metagenomic reads from a highly complex community 
 with introduced sequencing errors based on empirically derived fastQ files of a 
 full HiSeq 2500 Illumina run.
 
@@ -14,8 +14,7 @@ full HiSeq 2500 Illumina run.
  
 * [NCBI Genome Reports](ftp://ftp.ncbi.nih.gov/genomes/GENOME_REPORTS updated daily)
 * NCBI taxonomy 
-* NR 
-* Abundance profile
+* Sequence database (NCBI RefSeq)
 
 #### Software
 
@@ -35,6 +34,8 @@ full HiSeq 2500 Illumina run.
 |Sorangium                  |18241.7170368186   |
 |Mycobacterium              |14892.9966161738   |
 |Candidatus Accumulibacter  |11906.5856237162   |
+Caution: Currently only supports simulating using full name,
+Flawed cause there are genera with the same genus epithet.
 
 ## Description
 
@@ -47,6 +48,7 @@ with scaffolds/contigs taken from WGS data.
 #### Complete genomes
 
 In its first run, readSim takes abundance information and selects complete genomes (RefSeq and gapless)
-This is done buy first
+This is done by first searching NCBI taxonomy for the leaf nodes of the given genera and randomly selecting for one.
 
 #### Scaffolds and contigs WGS (Optional)
+
