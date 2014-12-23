@@ -1,10 +1,13 @@
 readSim
 =======
 
-A Perl and R pipeline for simulating metagenomic reads from a highly complex community 
+## Introduction 
+
+A Perl and R pipeline for simulating metagenomic reads from a highly complex community based on an abundance profile
 with introduced sequencing errors based on empirically derived fastQ files of a 
 full HiSeq 2500 Illumina run.
 
+Abundance profile is estimated using RPM values of reads homology mapped to existing database (NCBI RefSeq) using MEGAN.
 
 ## Prerequisites
 
@@ -43,7 +46,7 @@ After cloning the repository,
 
 
 ## Usage
-Caution the default for variable `cypherurl` in the `dbquery function` `in MetamapsDB is set to the local server’s address. 
+Caution the default for variable `cypherurl` in the `dbquery` `function in MetamapsDB is set to the local server’s address. 
 User will have to species otherwise this 
 
 ## Description
