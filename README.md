@@ -19,7 +19,7 @@ full HiSeq 2500 Illumina run.
 #### Software
 
 * Neo4j database loaded with NCBI taxonomy (setup file is still being made)
-* MetamapsDB R package
+* [MetamapsDB R package](https://github.com/etheleon/metamaps)
 
 ## User input
 

@@ -1,5 +1,25 @@
 #!/usr/bin/env Rscript
 
+library(getopt)
+spec = 
+matrix(c(
+        'abundance',    'a', 1, 'character', 'path to the abundance profile file',
+        'cypherurl',    'u', 2, 'character', 'the graph database address (incl port)',
+        'help',         'h', 0, 'logical', 'show help'
+         ), byrow=T, ncol=5)
+
+opt = getopt(spec)
+if(!is.null(opt$help)) {
+    cat(getopt(spec, usage=TRUE))
+    q(status=1)
+}
+
+if(is.null(opt$abundance) )
+{
+    cat("Error: abundance profile is required\n");
+    cat(getopt(spec, usage=TRUE));q(status=1)
+}
+if(!is.null(opt$cypherurl)){ dbquery <- Curry(dbquery, cypherurl=cypherurl)}
 ##################################################
 #+------------------------------------------------
 #Init
@@ -9,15 +29,6 @@ library(MetamapsDB)
 library(dplyr)
 library(functional)
 
-args        <- commandArgs(T)
-abuFile     <- args[1]
-testing     <- args[2]
-cypherurl   <- args[3]
-
-
-if(args[1]){
-    dbquery <<- Curry(dbquery, cypherurl=cypherurl)
-}
 ##################################################
 #+------------------------------------------------
 #Part1: Find map genus (rank)'s taxonID to genomes
@@ -25,18 +36,18 @@ if(args[1]){
 ##################################################
 
 #Download MappingFile
-mappingfile="data/genomereports/prokaryotes.txt"
-if(file.exists(mappingfile))
+dir.create("data/genomereports")
+if(file.exists("data/genomereports/prokaryotes.txt"))
 {
     print("Using existing prokaryotes files")
 }else
 {
-    #Download and update
-    #Unwritten
+    url = "ftp://ftp.ncbi.nih.gov/genomes/GENOME_REPORTS/prokaryotes.txt"
+    download.file(url, "data/genomereports/prokaryotes.txt")
 }
 
 #Read in mappingfile
-data        <- read.table(mappingfile, sep ="\t", fill =T, comment.char="",h=T, quote="")
+data        <- read.table("data/genomereports/prokaryotes.txt", sep ="\t", fill =T, comment.char="",h=T, quote="")
 #Choose only genera with refseq sequences
 dataAfter   <- filter(data, Chromosomes.RefSeq != "-", Status == 'Gapless Chromosome')
 
@@ -69,7 +80,7 @@ taxondf.genus   <-  taxonDF %>%
 #+------------------------------------------------
 ##################################################
 
-abu     <-  setNames(read.table(abuFile,sep="\t",h=T), c("taxon", "total")
+abu     <-  setNames(read.table(opt$abundance,sep="\t",h=T), c("taxon", "total"))
 
 #Simulating using only genomes from bacteria or archeae, hence 
 #genera in the abundance profile NOT of the above 2 superkingdoms will be ignored
@@ -92,7 +103,7 @@ RETURN
     genus.name as taxon, 
     genus.taxid as taxid"
 
-genus2taxID<- do.call(rbind,lapply(unique(abu$taxon), 
+genus2taxID <- do.call(rbind,lapply(unique(abu$taxon), 
 function(taxID) 
     dbquery(query1, list(taxaname=taxID))
 ))
@@ -105,7 +116,7 @@ abundance = merge(abu, genus2taxID, by="taxon")
 #|      Acetivibrio   |128.3666 |  35829|
 #|      Acetobacter   |138.6274 |    434|
 
-#for writing to output as input to sim.0200
+#For writing to output as input to sim.0200
 #write.table(abundance, file="out/sim.0101.out2.txt",quote=F, row.names=F,sep="\t")
 
 ##################################################
@@ -115,7 +126,7 @@ abundance = merge(abu, genus2taxID, by="taxon")
 ##################################################
 
 #Combined avaliable genomes with genera
-combined=tbl_df(merge(taxondf.genus, abundance, by.x="parentID", by.y="taxid"))
+combined=merge(taxondf.genus, abundance, by.x="parentID", by.y="taxid")
 combined=merge(combined, dataAfter, by.x="taxid", by.y="TaxID")
 
 #Choosen genome::luckydraw
@@ -128,14 +139,17 @@ genus[sample(1:nrow(genus),1),]
 
 #OUTPUT
 #Genera with complete genomes
-write.table(chosen_genomes %>% 
-            select(parentID,taxid,taxon,Chromosomes.RefSeq, total) %>%
-            arrange(desc(total)), 
-file="out/readSim.0100.chosen_completeGenomes", row.names=F, sep="\t", quote=F)
+write.table(
+    chosen_genomes %>% 
+    select(parentID,taxid,taxon,Chromosomes.RefSeq, total) %>%
+    arrange(desc(total)), 
+    file="out/readSim.0100.chosen_completeGenomes", 
+    row.names=F, sep="\t", quote=F)
 
 #Genera without complete genomes
 write.table(
     data.frame(
         taxid=abundance$taxid[!abundance$taxid %in% unique(combined$parentID)]
         ), 
-    sep="\t", row.names=F, quote=F,file="out/readSim.0100.woCompleteGenomes_taxidList")
+    file="out/readSim.0100.woCompleteGenomes_taxidList",
+    row.names=F, sep="\t", quote=F)
