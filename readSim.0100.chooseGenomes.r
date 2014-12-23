@@ -136,6 +136,6 @@ file="out/readSim.0100.chosen_completeGenomes", row.names=F, sep="\t", quote=F)
 #Genera without complete genomes
 write.table(
     data.frame(
-        taxid=do.call(c,abundance$taxid[!abundance$taxid %in% unique(combined$parentID)])
+        taxid=abundance$taxid[!abundance$taxid %in% unique(combined$parentID)]
         ), 
     sep="\t", row.names=F, quote=F,file="out/readSim.0100.woCompleteGenomes_taxidList")

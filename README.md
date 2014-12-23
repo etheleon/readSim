@@ -34,8 +34,9 @@ full HiSeq 2500 Illumina run.
 |Sorangium                  |18241.7170368186   |
 |Mycobacterium              |14892.9966161738   |
 |Candidatus Accumulibacter  |11906.5856237162   |
-Caution: Currently only supports simulating using full name,
-Flawed cause there are genera with the same genus epithet.
+Caution: Currently only supports simulating using full name.
+This is flawed because there are genera with the same genus epithet. 
+eg. *missing*
 
 ## Installation
 After cloning the repository, 
@@ -49,7 +50,8 @@ User will have to species otherwise this
 
 ### Genome selection
 
-script: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r)
+**script**: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r)
+
 readSIM selects a random genome from an taxon belonging to the provided genus.
 The selection can be set to choose only from complete genomes only or 
 with scaffolds/contigs taken from WGS data.
