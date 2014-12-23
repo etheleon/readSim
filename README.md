@@ -37,10 +37,19 @@ full HiSeq 2500 Illumina run.
 Caution: Currently only supports simulating using full name,
 Flawed cause there are genera with the same genus epithet.
 
+## Installation
+After cloning the repository, 
+
+
+## Usage
+Caution the default for variable `cypherurl` in the `dbquery function` `in MetamapsDB is set to the local server’s address. 
+User will have to species otherwise this 
+
 ## Description
 
 ### Genome selection
 
+script: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r)
 readSIM selects a random genome from an taxon belonging to the provided genus.
 The selection can be set to choose only from complete genomes only or 
 with scaffolds/contigs taken from WGS data.
@@ -51,4 +60,5 @@ In its first run, readSim takes abundance information and selects complete genom
 This is done by first searching NCBI taxonomy for the leaf nodes of the given genera and randomly selecting for one.
 
 #### Scaffolds and contigs WGS (Optional)
+
 
