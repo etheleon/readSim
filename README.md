@@ -51,6 +51,14 @@ User will have to species otherwise this
 
 ## Description
 
+### 100 We is there
+Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
+
+### 0200
+
+### 0400
+Takes empircal fastQ files as template
+
 ### Genome selection
 
 **script**: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r)
