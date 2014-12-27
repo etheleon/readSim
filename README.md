@@ -51,21 +51,15 @@ User will have to species otherwise this
 
 ## Description
 
-### 100 We is there
-Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
+### 100 Genome selection
 
-### 0200
-
-### 0400
-Takes empircal fastQ files as template
-
-### Genome selection
-
-**script**: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r)
+**script**: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r), [readSim.0101](readSim.0101.chooseContigsXScaffolds.r), 
 
 readSIM selects a random genome from an taxon belonging to the provided genus.
-The selection can be set to choose only from complete genomes only or 
-with scaffolds/contigs taken from WGS data.
+
+The selection of leaf taxa under given genera with  
+1. complete genomes or 
+2. with scaffolds/contigs WGS.
 
 #### Complete genomes
 
@@ -73,5 +67,13 @@ In its first run, readSim takes abundance information and selects complete genom
 This is done by first searching NCBI taxonomy for the leaf nodes of the given genera and randomly selecting for one.
 
 #### Scaffolds and contigs WGS (Optional)
+
+Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
+Taxa with the longest nucleotide sequence length are chosen
+
+### 0200
+
+### 0400
+Takes empircal fastQ files as template
 
 
