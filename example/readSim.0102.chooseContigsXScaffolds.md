@@ -12,9 +12,8 @@ theme_set(theme_bw())
 ```
 
 ## Introduction
-For genera without terminal taxa having completed genomes, 
-we select a child taxon based on the (1) presence of WGS records and (2) its total sequence length.
-Henceforth, We refer to these child taxa as *leaf taxa*
+For genera without leaf taxa (with completed genome), 
+we select a viable leaf taxon based on (1) availability of of WGS records and (2) its total sequence length.
 
 ## Exploratory analysis
 
@@ -26,8 +25,7 @@ We investigate
 
 
 ```r
-#Reads in output from readSim.0101
-data=read.table("example/out/readSim.0101.output.txt",sep="\t", h=T)
+data=read.table("./out/readSim.0101.output.txt",sep="\t", h=T)
 str(data)
 ```
 
@@ -52,7 +50,8 @@ numGenus = length(unique(data$genus))
 numTaxa  = length(unique(data$taxid))
 ```
 
-A total of 80 genera were without completed A total of 640 leaf taxa under the former.
+A total of 80 genera were without completed completed genomes. 
+A total of 640 leaf taxa under the former.
 
 
 ```r
@@ -63,38 +62,58 @@ ggtitle("Number of Sequences against Number of taxa per Genera")+
 xlab("# taxa")+ylab("# sequences")
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) <center><p class="caption">Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following > 20000 sequences or >50 taxa</p></center>
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) <center><p class="caption"><b>Figure:</b> Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following > 20000 sequences or >50 taxa</p></center>
 
 ## Data Processing
 
 We choose the taxa based on the availability of WGS data and total sequence length
 
-
 ```r
-#In cases where a leaf taxa without WGS data BUT have alot of sequences of a particular gene we limit our choice to just genera with known wgs data.
 #Will have to write the script which produces this wgstaxa, taken from NCBI
+
+#read in wgs annotation list
 wgs = setNames(read.table("~/db/refseq/wgstaxa",h=F), c("taxa"))
 wgsdata = subset(data, taxid %in% wgs$taxa)
+
+#choose max length taxa
 chosen = wgsdata %>% 
 group_by(genus) %>% 
 filter(combinedLength == max(combinedLength))
+str(chosen)
 ```
+
+```
+## Classes 'grouped_df', 'tbl_df', 'tbl' and 'data.frame':	7861 obs. of  5 variables:
+##  $ taxid         : int  485913 485913 485913 485913 485913 485913 485913 485913 485913 485913 ...
+##  $ genus         : int  363276 363276 363276 363276 363276 363276 363276 363276 363276 363276 ...
+##  $ gi            : int  343201746 298240972 298244067 298246545 298248889 298251200 298252301 298252372 298252405 298252427 ...
+##  $ refseq        : Factor w/ 25344 levels "NC_002806.1",..: 181 3252 3253 3254 3255 3256 3257 3258 3259 3260 ...
+##  $ combinedLength: int  13662972 13662972 13662972 13662972 13662972 13662972 13662972 13662972 13662972 13662972 ...
+##  - attr(*, "vars")=List of 1
+##   ..$ : symbol genus
+```
+
 ### WGS availability 
 
 404 taxa were removed because they have no WGS projects listed in NCBI, this resulted in 516 sequences trimmed out of a total of 25344.
 
 
 ```r
-p10=ggplot() + 
+ggplot() + 
 geom_boxplot(data=wgsdata, aes(x=reorder(as.factor(genus), combinedLength, median), y=combinedLength))+
 geom_jitter( data=wgsdata, aes(x=reorder(as.factor(genus), combinedLength, median), y=combinedLength))+
 geom_point(data=subset(wgsdata, taxid %in% chosen$taxid), aes(x=as.factor(genus), y=combinedLength),color='red')+
-theme(axis.text.x = element_text(angle=90))
+theme(axis.text.x = element_text(angle=90, hjust=1))+
+xlab("Genera")+ylab("Total Length of sequences in leaf taxa")
 ```
 
-<center><p class="caption">We plot the concatenated lengths of the sequences and across genera. Each data point represents one leaf taxa. Highlighted in red are the selected taxa</p></center>
+![plot of chunk fig.wi](figure/fig.wi-1.png) <center><p class="caption"><b>Figure:</b>We plot the concatenated lengths of the sequences and across genera. Each data point represents one leaf taxa. Highlighted in red are the selected taxa</p></center>
 
 
+```r
+write.table(chosen %>% select(-gi), file="out/readSim.0102.chosen_scaffolds.txt", sep="\t", quote=F, row.names=F, 
+col.names=c("taxid","parentID","Chromosome.RefSeq", "total"))
+```
 
 
 ```r
@@ -117,7 +136,7 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.3.0.2    ggplot2_1.0.0.99 knitr_1.8        vimcom_1.0-6    
+## [1] ggplot2_1.0.0.99 dplyr_0.3.0.2    knitr_1.8        vimcom_1.0-6    
 ## [5] setwidth_1.0-3   colorout_1.0-3  
 ## 
 ## loaded via a namespace (and not attached):

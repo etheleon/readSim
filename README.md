@@ -53,23 +53,22 @@ User will have to species otherwise this
 
 ### 100 Genome selection
 
-**script**: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r), [readSim.0101](readSim.0101.chooseContigsXScaffolds.r), 
+**script**: [readSim.0100.chooseGenomes.r](readSim.0100.chooseGenomes.r), 
 
-readSIM selects a random genome from an taxon belonging to the provided genus.
+readSIM selects a random genome from a leaf taxon for each genus in list.
 
 The selection of leaf taxa under given genera with  
 1. complete genomes or 
-2. with scaffolds/contigs WGS.
+2. scaffolds/contigs from WGS projects.
 
-#### Complete genomes
+#### Complete genomes 
 
 In its first run, readSim takes abundance information and selects complete genomes (RefSeq and gapless)
 This is done by first searching NCBI taxonomy for the leaf nodes of the given genera and randomly selecting for one.
 
 #### Scaffolds and contigs WGS 
 
-**script** [readSim.0102.chooseContigsXScaffolds.Rmd](readSim.0102.chooseContigsXScaffolds.md)
-**R markdown** [readSim.0102.chooseContigsXScaffolds.md](readSim.0102.chooseContigsXScaffolds.md)
+**scripts:** [readSim.0101.contigsXscaffolds.pl](readSim.0101.contigsXScaffolds.pl), [readSim.0102.chooseContigsXScaffolds.Rmd](example/readSim.0102.chooseContigsXScaffolds.md)
 
 We then take the taxa which do not have a completed genome based on the above criteria and select contigs and scaffolds which have a WGS entry
 Other filters include choosing only out of all possible leaf taxa under a genus based on the combined concatenated nucleotide length.
@@ -78,7 +77,11 @@ Other filters include choosing only out of all possible leaf taxa under a genus 
 Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
 Taxa with the longest nucleotide sequence length are chosen
 
-### 0200
+### 0200 Database trimming
+
+To simulate real life metagenomic data (genomes without reference sequences), 
+we trim NCBI’s nr database of sequences belonging under the same species as the chosen taxa from `0100 Genome selection`.
+
 
 ### 0400
 Takes empircal fastQ files as template
