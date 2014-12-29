@@ -66,7 +66,14 @@ The selection of leaf taxa under given genera with
 In its first run, readSim takes abundance information and selects complete genomes (RefSeq and gapless)
 This is done by first searching NCBI taxonomy for the leaf nodes of the given genera and randomly selecting for one.
 
-#### Scaffolds and contigs WGS (Optional)
+#### Scaffolds and contigs WGS 
+
+**script** [readSim.0102.chooseContigsXScaffolds.Rmd](readSim.0102.chooseContigsXScaffolds.md)
+**R markdown** [readSim.0102.chooseContigsXScaffolds.md](readSim.0102.chooseContigsXScaffolds.md)
+
+We then take the taxa which do not have a completed genome based on the above criteria and select contigs and scaffolds which have a WGS entry
+Other filters include choosing only out of all possible leaf taxa under a genus based on the combined concatenated nucleotide length.
+
 
 Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
 Taxa with the longest nucleotide sequence length are chosen
