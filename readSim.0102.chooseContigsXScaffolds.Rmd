@@ -1,0 +1,89 @@
+```{r echo=FALSE}
+opts_chunk$set(echo=TRUE, dpi=300, fig.width=8)
+knit_hooks$set(htmlcap = function(before, options, envir) {
+  if(!before) {
+    paste('<center><p class="caption">',options$htmlcap,"</p></center>",sep="")
+    }
+    })
+```
+
+Selecting leaf taxa for genera without complete genomes.
+====
+
+
+```{r message=FALSE}
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+## Introduction
+For genera without terminal taxa having completed genomes, 
+we select a child taxon based on the (1) presence of WGS records and (2) its total sequence length.
+Henceforth, We refer to these child taxa as *leaf taxa*
+
+## Exploratory analysis
+
+For each genus theres exists numerous taxa classified under it. 
+We investigate 
+1. total number of sequences (within the genus), 
+2. the number of taxa within the genus
+3. the combined sequence lengths
+
+```{r}
+#Reads in output from readSim.0101
+data=read.table("example/out/readSim.0101.output.txt",sep="\t", h=T)
+str(data)
+#Exploratory analysis for the distribution of taxa within a given genus with relation to its total sequence length, number of sequences etc.
+d2=data         %>% 
+group_by(genus) %>%
+summarise(numSeq=n(),
+          numtaxa=length(unique(taxid)), 
+          totLength=sum(as.numeric(combinedLength))) %>%
+mutate(ratio = numSeq/numtaxa)
+numGenus = length(unique(data$genus))
+numTaxa  = length(unique(data$taxid))
+```
+
+A total of `r numGenus` genera were without completed A total of `r numTaxa` leaf taxa under the former.
+
+```{r htmlcap = "Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following > 20000 sequences or >50 taxa"}
+ggplot(d2, aes(y=numSeq, x=numtaxa))+
+geom_point(aes(size=sqrt(totLength)))+
+geom_text(data=subset(d2, numSeq > 20000| numtaxa >=50 ), aes(label=genus), color='red')+
+ggtitle("Number of Sequences against Number of taxa per Genera")+
+xlab("# taxa")+ylab("# sequences")
+```
+
+## Data Processing
+
+We choose the taxa based on the availability of WGS data and total sequence length
+
+```{r}
+#In cases where a leaf taxa without WGS data BUT have alot of sequences of a particular gene we limit our choice to just genera with known wgs data.
+#Will have to write the script which produces this wgstaxa, taken from NCBI
+wgs = setNames(read.table("~/db/refseq/wgstaxa",h=F), c("taxa"))
+wgsdata = subset(data, taxid %in% wgs$taxa)
+chosen = wgsdata %>% 
+group_by(genus) %>% 
+filter(combinedLength == max(combinedLength))
+```
+### WGS availability 
+
+`r sum(!unique(data$taxid) %in% unique(wgs$taxa))` taxa were removed because they have no WGS projects listed in NCBI, this resulted in `r nrow(data) - nrow(wgsdata)` sequences trimmed out of a total of `r nrow(data)`.
+
+```{r htmlcap="We plot the concatenated lengths of the sequences and across genera. Each data point represents one leaf taxa. Highlighted in red are the selected taxa"}
+p10=ggplot() + 
+geom_boxplot(data=wgsdata, aes(x=reorder(as.factor(genus), combinedLength, median), y=combinedLength))+
+geom_jitter( data=wgsdata, aes(x=reorder(as.factor(genus), combinedLength, median), y=combinedLength))+
+geom_point(data=subset(wgsdata, taxid %in% chosen$taxid), aes(x=as.factor(genus), y=combinedLength),color='red')+
+theme(axis.text.x = element_text(angle=90))
+```
+
+```{r echo=FALSE}
+write.table(chosen, file="example/out/sim.0103.chosen.txt", sep="\t", quote=F, row.names=F)
+```
+
+```{r}
+sessionInfo()
+```
