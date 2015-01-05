@@ -2,10 +2,9 @@
 
 use Modern::Perl '2013';
 use autodie;
-use strict;
 
 die "usage: $0 chosenGenomes.fna template.fq output abundanceInfo childgenus
-		(indel-rate: proportion of indel over all errors; default=0.1)\n" unless $#ARGV==4;
+(indel-rate: proportion of indel over all errors; default=0.1)\n" unless $#ARGV==4;
 
 #0 chosenGenomes out/sim.0300.combined.fna
 #1 template.fq data/test.fq
@@ -48,7 +47,7 @@ map {$score{$_}=phred($_)} 0..100; 			#Probability
 #patching needs to be resolved in the future, genus - genus (with complete genomes) genus -taxid (for those without)
 open my $mapping, '<', $ARGV[4];
 while(<$mapping>) {
-    	chomp;
+    chomp;
     my ($genus, $child) = (split(/\t/));
     $childgenus{$child} = $genus;
 }
@@ -69,12 +68,12 @@ say "3. Reading abundances.. ";
 
 open my $abundance, '<', $ARGV[3]; #out/sim.0101.out2.txt	#this will read in full 413 taxa (bacteria and archea)
 while(<$abundance>){unless ($. == 1){
-    chomp;
-	my ($abu, $taxid) = (split(/\t/))[1,3];
-	if (exists $seq{$taxid}){				#this will only allow abundance to be stored if a sequence of that taxid exists
-	$abundance{$taxid} = $abu;
-	}
-}}
+        chomp;
+        my ($abu, $taxid) = (split(/\t/))[1,3];
+        if (exists $seq{$taxid}){				#this will only allow abundance to be stored if a sequence of that taxid exists
+            $abundance{$taxid} = $abu;
+        }
+    }}
 
 
 ##abundance summary
@@ -95,16 +94,16 @@ map {say "\t\t$_: $globalnt{$_}"} keys %globalnt;
 ##THINGS TO DO to convert into a mappable function
 my $rollingvalue;
 for(my $n=0; $n<=$#zipped; $n+=2)
-	{
-	    my $taxid = $zipped[$n];	#taxid
-		if($n==0){
-		    push @{ $range{$taxid} }, 0, $zipped[$n+1];
-		    $rollingvalue = $zipped[$n+1];
-	    	}else{
-		    push @{ $range{$taxid} }, $rollingvalue, $rollingvalue + $zipped[$n+1];
-		    $rollingvalue += $zipped[$n+1];
-		}
-	}
+{
+    my $taxid = $zipped[$n];	#taxid
+    if($n==0){
+        push @{ $range{$taxid} }, 0, $zipped[$n+1];
+        $rollingvalue = $zipped[$n+1];
+    }else{
+        push @{ $range{$taxid} }, $rollingvalue, $rollingvalue + $zipped[$n+1];
+        $rollingvalue += $zipped[$n+1];
+    }
+}
 
 ###################################################
 ## Simulate Shotgun sequence
@@ -135,26 +134,26 @@ open my $fastqTWO, 	"$fastqfiletwo " || die $!;
 
 #assumming single line fastq
 while (!eof($fastqONE) and !eof($fastqTWO)) {
-	<$fastqONE>;<$fastqONE>;<$fastqONE>;	#h1, sequence, h2
-	<$fastqTWO>;<$fastqTWO>;<$fastqTWO>;	#h1, sequence, h2
+    <$fastqONE>;<$fastqONE>;<$fastqONE>;	#h1, sequence, h2
+    <$fastqTWO>;<$fastqTWO>;<$fastqTWO>;	#h1, sequence, h2
 
 #Process Quality
 
-	my $qualONE 	=  <$fastqONE>;
-	chomp $qualONE;
+    my $qualONE 	=  <$fastqONE>;
+    chomp $qualONE;
 #	say $qualONE;
 
-	my $qualTWO =  <$fastqTWO>;
-	chomp $qualTWO;
+    my $qualTWO =  <$fastqTWO>;
+    chomp $qualTWO;
 
-	my $readlength = length($qualONE);	#template length	#assuming pair1 & 2 have the same read length
-	my $qualitystringONE = processQual($qualONE);
-	my $qualitystringTWO = processQual($qualTWO);
+    my $readlength = length($qualONE);	#template length	#assuming pair1 & 2 have the same read length
+    my $qualitystringONE = processQual($qualONE);
+    my $qualitystringTWO = processQual($qualTWO);
 
 ##Choosing taxa and loc to pluck sequence out from
 
-	my $taxaofchoice = choosetaxa(@taxid);
-	processPairReads($taxaofchoice, $readlength, $qualitystringONE, $qualitystringTWO, $qualONE,$qualTWO);
+    my $taxaofchoice = choosetaxa(@taxid);
+    processPairReads($taxaofchoice, $readlength, $qualitystringONE, $qualitystringTWO, $qualONE,$qualTWO);
 }
 
 say "All done. Please check $ARGV[2] for results";
@@ -165,19 +164,19 @@ say "All done. Please check $ARGV[2] for results";
 #Calculates error-probability of mutation
 sub phred
 {
-my ($score) = @_;
-	return 10**($score/(-10));
+    my ($score) = @_;
+    return 10**($score/(-10));
 }
 
 sub ntfreq
 {
-my ($taxid) = @_;
-    	my %ntrate;
-	$ntrate{'a'} += ($seq{$taxid}=~tr/aA/AA/);	#count the number of ATCGs
-	$ntrate{'t'} += ($seq{$taxid}=~tr/tT/TT/);
-	$ntrate{'g'} += ($seq{$taxid}=~tr/gG/GG/);
-	$ntrate{'c'} += ($seq{$taxid}=~tr/cC/CC/);
-	map {	$globalnt{$_} += ($ntrate{$_} / length($seq{$taxid})) * $abundance{$taxid}	} keys %ntrate;	#correct one
+    my ($taxid) = @_;
+    my %ntrate;
+    $ntrate{'a'} += ($seq{$taxid}=~tr/aA/AA/);	#count the number of ATCGs
+    $ntrate{'t'} += ($seq{$taxid}=~tr/tT/TT/);
+    $ntrate{'g'} += ($seq{$taxid}=~tr/gG/GG/);
+    $ntrate{'c'} += ($seq{$taxid}=~tr/cC/CC/);
+    map {	$globalnt{$_} += ($ntrate{$_} / length($seq{$taxid})) * $abundance{$taxid}	} keys %ntrate;	#correct one
 #	map {   say "sequence with missing ntrate:\n $seq{$taxid}\n$_\t$taxid" if ($ntrate{$_}==0) } keys %ntrate;
 #	map {   say $taxid if ($ntrate{$_}==0) } keys %ntrate;
 }
@@ -185,59 +184,59 @@ my ($taxid) = @_;
 ##mutates the sequence based on frequency
 sub mutate
 {
-my ($readnt,$qual,$readLength) = @_;
-    	my @readnt = split(//, $readnt);
-    	my @qual = split(/\t/, $qual);		#stores the probability
-    	my $loc = 1;				#this is loc of buffered seqeunce in case of deletion event
+    my ($readnt,$qual,$readLength) = @_;
+    my @readnt = split(//, $readnt);
+    my @qual = split(/\t/, $qual);		#stores the probability
+    my $loc = 1;				#this is loc of buffered seqeunce in case of deletion event
 
-    	my @outputsequence;	#store sequence
+    my @outputsequence;	#store sequence
 
-	for(my $i=0; $i < $readLength; $i++) {
-	my $qualityscore = $qual[$i];
-	if(rand()<$qualityscore){
-	#MUTATION
-			#INDEL EVENT #####################################
-			if(rand()<$indelrate)	{
-			##################################################
-				if(int(rand(2))){ 	#INSERTION
-					my $extra = rand_nt();
-					my $extra.= $readnt[$loc];
-					push @outputsequence, $extra;
-					$loc++
-				}else{			#DELETION
-					$loc++;
-					push @outputsequence, $readnt[$loc];
-					$loc++
-				}
-			##################################################
+    for(my $i=0; $i < $readLength; $i++) {
+        my $qualityscore = $qual[$i];
+        if(rand()<$qualityscore){
+            #MUTATION
+            #INDEL EVENT #####################################
+            if(rand()<$indelrate)	{
+                ##################################################
+                if(int(rand(2))){ 	#INSERTION
+                    my $extra = rand_nt();
+                    my $extra.= $readnt[$loc];
+                    push @outputsequence, $extra;
+                    $loc++
+                }else{			#DELETION
+                    $loc++;
+                    push @outputsequence, $readnt[$loc];
+                    $loc++
+                }
+                ##################################################
 
-			#SUBSTITUTION EVENT ##############################
-			}else	{
-			##################################################
-			    my $substitutedNT = rand_nt();
-			    push @outputsequence, $substitutedNT;
-					$loc++
-			    	}
-			##################################################
-	}else{
-	#NO MUTATION
-	    push @outputsequence, $readnt[$loc];
-					$loc++;
-	    	}
-	}
-	my $finalseq = join '', @outputsequence;
-	return $finalseq;
+                #SUBSTITUTION EVENT ##############################
+            }else	{
+                ##################################################
+                my $substitutedNT = rand_nt();
+                push @outputsequence, $substitutedNT;
+                $loc++
+            }
+            ##################################################
+        }else{
+            #NO MUTATION
+            push @outputsequence, $readnt[$loc];
+            $loc++;
+        }
+    }
+    my $finalseq = join '', @outputsequence;
+    return $finalseq;
 }
 
 ##chooses the random ATGC to change
 sub rand_nt
 {
-	my $rand = rand;
-	return 'a' if($rand<$globalnt{'a'});
-	return 't' if($rand<$globalnt{'a'}+$globalnt{'t'});
-	return 'g' if($rand<$globalnt{'a'}+$globalnt{'t'}+$globalnt{'g'});
-	return 'c' if($rand<$globalnt{'a'}+$globalnt{'t'}+$globalnt{'g'}+$globalnt{'c'});
-	return 'n';
+    my $rand = rand;
+    return 'a' if($rand<$globalnt{'a'});
+    return 't' if($rand<$globalnt{'a'}+$globalnt{'t'});
+    return 'g' if($rand<$globalnt{'a'}+$globalnt{'t'}+$globalnt{'g'});
+    return 'c' if($rand<$globalnt{'a'}+$globalnt{'t'}+$globalnt{'g'}+$globalnt{'c'});
+    return 'n';
 }
 
 #chooses a random taxa
@@ -245,112 +244,112 @@ sub choosetaxa
 {
     my $rand = rand();
     foreach (@taxid) {
-	    if($rand > $range{$_}[0] & $rand <= $range{$_}[1])
-	    {
-	    return $_;
-	    }
-	}
+        if($rand > $range{$_}[0] & $rand <= $range{$_}[1])
+        {
+            return $_;
+        }
+    }
 }
 
 sub processQual
 {
-my ($qual) = @_;
-	my @qual = map { ord($_) - 33 } split('',$qual);	#convert ASCII to indexNum
-	my $qualitystring = join "\t", map {$score{$_}} @qual;
-return $qualitystring;
+    my ($qual) = @_;
+    my @qual = map { ord($_) - 33 } split('',$qual);	#convert ASCII to indexNum
+    my $qualitystring = join "\t", map {$score{$_}} @qual;
+    return $qualitystring;
 }
 
 sub writeSequence
 {
-my (	$id, $sequence, $qual, $nameOfSequence, $start, $readLength,
-	$outputfile, $type, $filehandle, $filehandle2, $pair) = @_;
+    my (	$id, $sequence, $qual, $nameOfSequence, $start, $readLength,
+        $outputfile, $type, $filehandle, $filehandle2, $pair) = @_;
 
 #my $header = "simuREAD_$id|gi|$gitaxid{$nameOfSequence}|taxID|$nameOfSequence|loc|$start-";
-my $header = "simuREAD_$id|taxID|$nameOfSequence|loc|$start-";
-$header .= $start+$readLength."|output|$outputfile/$pair";
+    my $header = "simuREAD_$id|taxID|$nameOfSequence|loc|$start-";
+    $header .= $start+$readLength."|output|$outputfile/$pair";
 
-if($type eq 'fastq')
-	{
-	    if($pair == 1) {
-		say $filehandle '@'.$header;
-		say $filehandle $sequence;	#sequence
-		say $filehandle "+";
-		say $filehandle $qual;
-	    }else{
-		say $filehandle2 '@'.$header;
-		say $filehandle2 $sequence;	#sequence
-		say $filehandle2 "+";
-		say $filehandle2 $qual;
-	    }
-	}else{
-	  say $filehandle '>'.$header;
-	  say $filehandle $sequence;	#sequence
-	}
+    if($type eq 'fastq')
+    {
+        if($pair == 1) {
+            say $filehandle '@'.$header;
+            say $filehandle $sequence;	#sequence
+            say $filehandle "+";
+            say $filehandle $qual;
+        }else{
+            say $filehandle2 '@'.$header;
+            say $filehandle2 $sequence;	#sequence
+            say $filehandle2 "+";
+            say $filehandle2 $qual;
+        }
+    }else{
+        say $filehandle '>'.$header;
+        say $filehandle $sequence;	#sequence
+    }
 }
 
 sub processPairReads
 {
-my ($taxaofchoice,$readLength,$qualONE,$qualTWO,$asciiQualONE, $asciiQualTWO) = @_;
+    my ($taxaofchoice,$readLength,$qualONE,$qualTWO,$asciiQualONE, $asciiQualTWO) = @_;
 #choose location
-	my $insertSize = int(random_normal(150, 5));
+    my $insertSize = int(random_normal(150, 5));
 
-	#xc suggested to set min size in case probability kills u
+    #xc suggested to set min size in case probability kills u
 
-	my $genomelocation = int(rand($leng{$taxaofchoice}-$insertSize+1));
+    my $genomelocation = int(rand($leng{$taxaofchoice}-$insertSize+1));
 
 #read one
-	my $readnt = substr($seq{$taxaofchoice}, $genomelocation,$insertSize);	#problem
-	my $newsequence = mutate($readnt, $qualONE,$readLength);
+    my $readnt = substr($seq{$taxaofchoice}, $genomelocation,$insertSize);	#problem
+    my $newsequence = mutate($readnt, $qualONE,$readLength);
 #	say "my mutated sequence ", $newsequence;
 
 
-	my $pair = 1;
+    my $pair = 1;
 
-	my $type ='fasta';
-	writeSequence($id,$newsequence,$asciiQualONE,$taxaofchoice,$genomelocation,
-	$readLength,$outputfile,$type, $fastaOutput, $fastaOutput, $pair);
+    my $type ='fasta';
+    writeSequence($id,$newsequence,$asciiQualONE,$taxaofchoice,$genomelocation,
+        $readLength,$outputfile,$type, $fastaOutput, $fastaOutput, $pair);
 
-	my $type ='fastq';
-	writeSequence($id,$newsequence,$asciiQualONE,$taxaofchoice,$genomelocation,
-	$readLength,$outputfile,$type, $fastqOutputONE, $fastqOutputTWO, $pair);
+    my $type ='fastq';
+    writeSequence($id,$newsequence,$asciiQualONE,$taxaofchoice,$genomelocation,
+        $readLength,$outputfile,$type, $fastqOutputONE, $fastqOutputTWO, $pair);
 
 #read two
-	#a. reverse
-	$readnt = scalar reverse $readnt;
-	#b. complement
-	$readnt =~ tr/ATGC/TACG/;
-	$newsequence = mutate($readnt, $qualTWO, $readLength);
+    #a. reverse
+    $readnt = scalar reverse $readnt;
+    #b. complement
+    $readnt =~ tr/ATGC/TACG/;
+    $newsequence = mutate($readnt, $qualTWO, $readLength);
 
-	my $pair = 2;
+    my $pair = 2;
 
-	my $type ='fasta';
-	writeSequence($id, $newsequence,$asciiQualTWO,$taxaofchoice,$genomelocation,
-	$readLength,$outputfile,$type, $fastaOutput,$fastaOutput, $pair);
+    my $type ='fasta';
+    writeSequence($id, $newsequence,$asciiQualTWO,$taxaofchoice,$genomelocation,
+        $readLength,$outputfile,$type, $fastaOutput,$fastaOutput, $pair);
 
-	my $type ='fastq';
-	writeSequence($id, $newsequence,$asciiQualTWO,$taxaofchoice,$genomelocation,
-	$readLength,$outputfile,$type, $fastqOutputONE, $fastqOutputTWO, $pair);
-	$id++;
+    my $type ='fastq';
+    writeSequence($id, $newsequence,$asciiQualTWO,$taxaofchoice,$genomelocation,
+        $readLength,$outputfile,$type, $fastqOutputONE, $fastqOutputTWO, $pair);
+    $id++;
 }
 
 sub read_fasta_file {
     my ($fasta_file) = @_;
     my (%seq,$taxid);
-	open my $in, '<', $fasta_file || die "can't open $fasta_file: $!\n";
-	while (<$in>) {
-   	    next if(m/^\s*$/); #remove blank lines
-			# read fasta
-		if(m/>\s*?(\S+)/){
-		    chomp;
-    		    my ($child) = (split(/\|/, $1))[1];	#the taxid of the sequence/genome
-    			$taxid = $childgenus{$child};		#stores the genus in $taxid
-		}else{
-		    chomp;
-		    $seq{$taxid} .= $_;
-		}
-	}
-close $in;
-return \%seq;
+    open my $in, '<', $fasta_file || die "can't open $fasta_file: $!\n";
+    while (<$in>) {
+        next if(m/^\s*$/); #remove blank lines
+        # read fasta
+        if(m/>\s*?(\S+)/){
+            chomp;
+            my ($child) = (split(/\|/, $1))[1];	#the taxid of the sequence/genome
+            $taxid = $childgenus{$child};		#stores the genus in $taxid
+        }else{
+            chomp;
+            $seq{$taxid} .= $_;
+        }
+    }
+    close $in;
+    return \%seq;
 }
 
 sub gaussian_rand {
@@ -369,12 +368,12 @@ sub gaussian_rand {
     $g1 = $u2 * $w;
     # return both if wanted, else just one
 #    return wantarray ? ($g1, $g2) : $g1;
-return $g1;
+    return $g1;
 }
 
 sub random_normal
 {
-my ($mean, $sd) = @_;
-my $num = gaussian_rand();
-my $newnum = ($num * $sd) + $mean;
+    my ($mean, $sd) = @_;
+    my $num = gaussian_rand();
+    my $newnum = ($num * $sd) + $mean;
 }

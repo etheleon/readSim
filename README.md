@@ -7,7 +7,7 @@ A Perl and R pipeline for simulating metagenomic reads from a highly complex com
 with introduced sequencing errors based on empirically derived fastQ files of a 
 full HiSeq 2500 Illumina run.
 
-Abundance profile is estimated using RPM values of reads homology mapped to existing database (NCBI RefSeq) using MEGAN.
+Abundance profile is estimated using RPM values of reads homology mapped to existing database (NCBI RefSeq) using [MEGAN](http://ab.inf.uni-tuebingen.de/software/megan5/).
 
 ## Prerequisites
 
@@ -56,7 +56,7 @@ perl bootstrap.pl --abundance=input --cypherurl=graphDatabaseAddress:port/db/dat
 
 | Arguments     | Description                                                                                          |
 | ----          | ----                                                                                                 |
-| abundance     | input table with genusName and abundance                                                             |
+| abundance     | input table with genusName and abundance (see above)                                                 |
 | cypherurl     | The address of the graph database. Default for `cypherurl` set to head node on water.bic.nus.edu.sg. |
 | refseqDB_nucl | NCBI’s refseq database (only archea and bacteria)                                                    |
 | taxDB         | NCBI’s taxonomy database                                                                             |
@@ -146,7 +146,22 @@ and provides the mapping locations of the individual sequences on the global seq
 Takes empircal fastQ files from the Illumina platform as template, and generates the simualted reads.
 Input fastQ files partitioned by lane.
 
-#### Phred Score calculation
+#### Header of output files 
+```
+readID|taxID|ncbiTaxonomyID|loc|location on concatenated sequence|output|lane/pair
+```
+
+Example:
+```
+>simuREAD_0|taxID|256616|loc|7302-7403|output|s_1/1
+CCATCGCCATCCGCGCCGAGCGCGAAGGCATCACCGTCGAAGTCGCCATGTGGTGGAACGACAGCTACCACGAGAACGTGCTCTGCTTCACCAACAACATC
+>simuREAD_0|taxID|256616|loc|7302-7403|output|s_1/2
+GAGCGCGCCACGGAAGCCCGCGAGATGCGTGCCGCCATCGCGCTGCGGGATGTTGTTGGTGAAGCAGAGCACGTTCTCGTGGTAGCTGTCGTTCCACCACA
+```
+
+#### Breakdown of the script
+
+##### Phred Score calculation
 
 The phred and map functions stores 1.) Phred Quality Score and 2.) base-calling error probabilities 
 as key-value pairs in hash `%score`.
@@ -168,7 +183,8 @@ while `random_normal` uses the former to generate a number taken from a normal d
 The later is used to generate an insert size before truncation into read pairs.
 
 ```perl
-sub gaussian_rand {
+sub gaussian_rand 
+{
     my ($u1, $u2);  # uniformly distributed random numbers
     my $w;          # variance, then a weight
     my ($g1, $g2);  # gaussian-distributed numbers
@@ -189,15 +205,15 @@ return $g1;
 
 sub random_normal
 {
-my ($mean, $sd) = @_;
-my $num = gaussian_rand();
-my $newnum = ($num * $sd) + $mean;
+    my ($mean, $sd) = @_;
+    my $num = gaussian_rand();
+    my $newnum = ($num * $sd) + $mean;
 }
 ```
 
-## Substitution matrix
+##### Substitution matrix
 
-Substitution template nucleotide based on phred score is random (uniform distribution).
+Substitution of template nucleotide upon failure of accurate base calling (based on phred score from template fastQ) is random (uniform distribution).
 
 ```perl
 sub rand_nt
