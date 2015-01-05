@@ -118,17 +118,32 @@ and provides the mapping locations of the individual sequences on the global seq
 ##### Outputs
 
 
-| Output                       | Description                                                                                 |
-| -----                        | -----                                                                                       |
-| readSim.0300 dir             | contains fasta files of the leaf taxa belonging to genera of interest; named by the genusID |
-| readSim.0300.out.mapping     | the mapping of the locations                                                                |
-| readSim.0300.out.notRemoved  | sequences which were not found in the refseq genomic database                               |
-| readSim.0300.out.fna         | collection of sequences used                                                                |
-| readSim.0301.lengthtable.txt | the sequence lengths of any given leaf taxon under a genus                                  |
+| Output                          | Description                                                                                 |
+| -----                           | -----                                                                                       |
+| readSim.0300 dir                | contains fasta files of the leaf taxa belonging to genera of interest; named by the genusID |
+| readSim.0300.out.mapping        | the mapping of the locations                                                                |
+| readSim.0300.out.notRemoved     | sequences which were not found in the refseq genomic database                               |
+| readSim.0300.out.fna            | collection of sequences used                                                                |
+| readSim.0301.lengthtable.txt    | the sequence lengths of any given leaf taxon under a genus                                  |
+| readSim.0302.sequenceLengths.md | summary report of the number of sequences                                                   |
 
 ### 0400 Generating simulated metagenomic reads
 
 [In progress]
 Takes empircal fastQ files from the Illumina platform as template, and generates the simualted reads.
 Input fastQ files partitioned by lane.
+
+#### Phred Score calculation
+
+```perl
+sub phred
+{
+    my ($score) = @_;
+    return 10**($score/(-10));
+}
+
+```perl
+map {$score{$_}=phred($_)} 0..100
+```
+
 
