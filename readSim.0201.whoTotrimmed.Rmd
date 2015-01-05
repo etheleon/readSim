@@ -1,0 +1,111 @@
+```{r echo=FALSE}
+opts_chunk$set(echo=TRUE, dpi=300, fig.width=8, fig.height=5)
+opts_knit$set(root.dir="/export2/home/uesu/github/readSim/example")
+knit_hooks$set(htmlcap = function(before, options, envir) {
+  if(!before) {
+    paste('<center><p class="caption">',options$htmlcap,"</p></center>",sep="")
+    }
+    })
+```
+
+
+
+Trimming the database
+====
+
+## Sypnosis
+For each of the taxa chosen (with and without completed genomes), we 
+identity the corresponding species it belongs to. We proceed by removing all
+species belonging under these species from the NR database
+
+
+```{r message=FALSE}
+library(MetamapsDB)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_bw())
+```
+
+## Part1
+
+Finding the species ID of chosen leaf taxa.
+
+```{r}
+chosen_genomes      = read.table("out/readSim.0100.chosen_completeGenomes",h=T, sep="\t", quote="")
+chosen_nogenomes    = read.table("out/readSim.0102.chosen_scaffolds.txt",h=T, sep="\t", quote="")
+#Request for species name of the chosen taxa
+query = 
+"START 
+   basetaxa=node:ncbitaxid(taxid={taxaid}) 
+MATCH 
+   basetaxa-[:childof*0..]->(higher:species)-[:childof*0..]->(highest:genus)
+RETURN 
+   basetaxa.taxid as taxid, 
+   higher.taxid as species, 
+   highest.taxid as genus, 
+   head(labels(higher)) as rankSpecies, 
+   head(labels(highest)) as rankGenus"
+
+##Part1::From the complete genome list 
+completeGenomeSelectedSpecies =
+do.call(rbind,
+        lapply(as.character(unique(chosen_genomes$taxid)), function(x){
+               dbquery(query,list(taxaid=x))
+        })      )
+
+##Part2::From the incomplete genome list 
+incompleteGenomeSelectedSpecies  = 
+do.call(rbind,
+        lapply(as.character(unique(chosen_nogenomes$taxid)), function(x){
+               dbquery(query,list(taxaid=x))
+        })      )
+
+selectedSpecies = rbind(completeGenomeSelectedSpecies, incompleteGenomeSelectedSpecies)
+```
+
+In the complete genome set a total of `r length(unique(completeGenomeSelectedSpecies$species))` were identitfied 
+whereas for the incomplete genome list `r length(unique(incompleteGenomeSelectedSpecies$species))` were found. For a total of 
+`r length(unique(completeGenomeSelectedSpecies$species)) + length(unique(incompleteGenomeSelectedSpecies$species))` species.
+
+## Part 2
+Using neo4j, we query for the tax IDs of all taxa falling under the identitified species.
+
+```{r}
+query = 
+"start
+species = node:ncbitaxid(taxid={taxaid}) 
+match 
+p = (species)<-[:childof*0..]-(lowest)
+return
+species.taxid as species, 
+lowest.taxid as underling, 
+head(labels(lowest)) as rank"
+
+lotr = 
+do.call(rbind,
+        lapply(as.character(unique(selectedSpecies$species)), function(x){
+               dbquery(query,list(taxaid=as.character(x)))
+        })      )
+selected2 = merge(selectedSpecies[, c("species", "genus")], lotr, by="species",all=T)
+selected2 =as.data.frame(t(apply(selected2,1,unlist)))	#problematic df structure
+selected3 = selected2 %>%
+group_by(genus) %>%
+summarise(speciesCount = length(unique(species)), underlingCount = length(unique(underling)))
+```
+
+We found a total of `r length(unique(selected2$underling))` taxa to remove.
+
+```{r htmlcap="<b>Figure</b> SpeciesCount vs underlingCount"}
+ggplot(selected3, aes(log10(underlingCount)))+
+geom_histogram()+
+xlab("# child taxa under chosen species (log10)")
+```
+
+```{r}
+#Writes to file
+write.table(selected2, "out/readSim.0201.output.txt",row.names=F, quote=F,sep="\t")
+```
+
+```{r}
+sessionInfo()
+```

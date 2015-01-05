@@ -31,14 +31,26 @@ mkdir 'figures' unless -d 'figures';
 #0100 Choose genomes
 system $baseDIR."/readSim.0100.chooseGenomes.r $abundanceProfile $cypherurl";
 system $baseDIR."/readSim.0101.contigsXscaffolds.pl out/readSim.0100.woCompleteGenomes_taxidList $cypherurl $refseqDB_nucl $taxDB"
-
 my $cmds = <<"EOF";
 library(knitr);
-knit2html("$file.Rmd")
+knit2html("$baseDIR/readSim.0102.chooseContigsXScaffolds.Rmd", template="example/src/htmltemplate.html")
 EOF
 $R->run($cmds);
 $R->stop();
 
+#0200
+$cypherurl
+
+#0300
+system "$baseDIR/readSim.0300.genome_extraction.pl out/readSim.0100.chosen_completeGenomes out/readSim.0102.chosen_scaffolds.txt $refseqDB_nucl"
+
+system "$baseDIR/readSim.0301.getLength.pl"
+my $cmds = <<"EOF";
+library(knitr);
+knit2html("$baseDIR/readSim.0302.sequenceLengths.Rmd", template="example/src/htmltemplate.html")
+EOF
+$R->run($cmds);
+$R->stop();
 
 # 0400 Run simulation
 

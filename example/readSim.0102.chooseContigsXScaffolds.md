@@ -17,8 +17,8 @@ we select a viable leaf taxon based on (1) availability of of WGS records and (2
 
 ## Exploratory analysis
 
-For each genus theres exists numerous taxa classified under it. 
-We investigate 
+For each genus belongs numerous leaf taxa. 
+We investigate:
 1. total number of sequences (within the genus), 
 2. the number of taxa within the genus
 3. the combined sequence lengths
@@ -58,15 +58,14 @@ A total of 640 leaf taxa under the former.
 ggplot(d2, aes(y=numSeq, x=numtaxa))+
 geom_point(aes(size=sqrt(totLength)))+
 geom_text(data=subset(d2, numSeq > 20000| numtaxa >=50 ), aes(label=genus), color='red')+
-ggtitle("Number of Sequences against Number of taxa per Genera")+
 xlab("# taxa")+ylab("# sequences")
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) <center><p class="caption"><b>Figure:</b> Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following > 20000 sequences or >50 taxa</p></center>
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) <center><p class="caption"><b>Figure:</b> Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following: > 20000 sequences or >50 taxa</p></center>
 
 ## Data Processing
 
-We choose the taxa based on the availability of WGS data and total sequence length
+We choose the taxa based on the availability of WGS data and total sequence length.
 
 ```r
 #Will have to write the script which produces this wgstaxa, taken from NCBI
@@ -107,7 +106,7 @@ theme(axis.text.x = element_text(angle=90, hjust=1))+
 xlab("Genera")+ylab("Total Length of sequences in leaf taxa")
 ```
 
-![plot of chunk fig.wi](figure/fig.wi-1.png) <center><p class="caption"><b>Figure:</b>We plot the concatenated lengths of the sequences and across genera. Each data point represents one leaf taxa. Highlighted in red are the selected taxa</p></center>
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) <center><p class="caption"><b>Figure:</b>We plot the concatenated lengths of the sequences and across genera. Each data point represents one leaf taxa. Highlighted in red are the selected taxa.</p></center>
 
 
 ```r
@@ -136,14 +135,15 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_1.0.0.99 dplyr_0.3.0.2    knitr_1.8        vimcom_1.0-6    
-## [5] setwidth_1.0-3   colorout_1.0-3  
+## [1] ggplot2_1.0.0.99 dplyr_0.3.0.2    MetamapsDB_0.01  knitr_1.8       
+## [5] vimcom_1.0-6     setwidth_1.0-3   colorout_1.0-3  
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] assertthat_0.1   colorspace_1.2-4 DBI_0.3.1        digest_0.6.4    
 ##  [5] evaluate_0.5.5   formatR_1.0      grid_3.1.1       gtable_0.1.2    
-##  [9] labeling_0.3     lazyeval_0.1.9   magrittr_1.0.1   markdown_0.7.4  
-## [13] MASS_7.3-35      mime_0.2         munsell_0.4.2    parallel_3.1.1  
-## [17] plyr_1.8.1       proto_0.3-10     Rcpp_0.11.3      reshape2_1.4    
-## [21] scales_0.2.4     stringr_0.6.2    tools_3.1.1
+##  [9] igraph_0.7.1     labeling_0.3     lazyeval_0.1.9   magrittr_1.0.1  
+## [13] markdown_0.7.4   MASS_7.3-35      mime_0.2         munsell_0.4.2   
+## [17] parallel_3.1.1   plyr_1.8.1       proto_0.3-10     Rcpp_0.11.3     
+## [21] RCurl_1.95-4.3   reshape2_1.4     RJSONIO_1.3-0    scales_0.2.4    
+## [25] stringr_0.6.2    tools_3.1.1
 ```

@@ -1,6 +1,6 @@
 ```{r echo=FALSE}
-opts_chunk$set(echo=TRUE, dpi=300, fig.width=8, fig.height=5)
 opts_knit$set(root.dir="/export2/home/uesu/github/readSim/example")
+opts_chunk$set(echo=TRUE, dpi=300, fig.width=8, fig.height=5, fig.path='figures/readSim.0102-')
 knit_hooks$set(htmlcap = function(before, options, envir) {
   if(!before) {
     paste('<center><p class="caption">',options$htmlcap,"</p></center>",sep="")
@@ -86,7 +86,7 @@ xlab("Genera")+ylab("Total Length of sequences in leaf taxa")
 
 ```{r}
 write.table(chosen %>% select(-gi), file="out/readSim.0102.chosen_scaffolds.txt", sep="\t", quote=F, row.names=F, 
-col.names=c("taxid","parentID","Chromosome.RefSeq", "total"))
+col.names=c("taxid","parentID","Chromosome.RefSeq", "totalLength"))
 ```
 
 ```{r}

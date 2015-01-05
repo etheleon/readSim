@@ -73,17 +73,29 @@ This is done by first searching NCBI taxonomy for the leaf nodes of the given ge
 We then take the taxa which do not have a completed genome based on the above criteria and select contigs and scaffolds which have a WGS entry
 Other filters include choosing only out of all possible leaf taxa under a genus based on the combined concatenated nucleotide length.
 
-
 Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
 Taxa with the longest nucleotide sequence length are chosen
 
 ### 0200 Database trimming
 
+**scripts:** [readSim.0201.whoTotrimmed.Rmd](readSim.0201.whoTotrimmed.Rmd), 
+
 To simulate real life metagenomic data (genomes without reference sequences), 
 we trim NCBI’s nr database of sequences belonging under the same species as the chosen taxa from `0100 Genome selection`.
 
 
+The first script hunts for all leaf taxa belonging to the same species as the chosen genomes, 
+while the second reads in the NR database and removes the former to give a trimmed NR.
+
+NOTE: We leave species in the genus thauera untrimmed from the NR database
+
+### 0300 template Sequence extraction
+
+**scripts** [readSim.0300.genome_extraction.pl](readSim.0300.genome_extraction.pl)
+
+
+* extracts and concatenate sequences from the chosen taxon of the same genus as in the original input list and provides the mapping locations of the individual sequences on the global sequence
+
 ### 0400
 Takes empircal fastQ files as template
-
 
