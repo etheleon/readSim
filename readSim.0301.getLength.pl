@@ -17,5 +17,5 @@ while(my $seq = $in->next_seq)
 }
 
 open my $out, ">", "out/readSim.0301.lengthtable.txt";
-say $out join "\t", qw/genus length/;
+say $out "genus\tlength";
 say $out join("\t", $_, $seqLength->{$_}{'length'}) for keys %$seqLength;

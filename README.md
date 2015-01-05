@@ -23,9 +23,9 @@ Abundance profile is estimated using RPM values of reads homology mapped to exis
 
 * Neo4j database loaded with NCBI taxonomy (setup file is still being made)
 * [MetamapsDB R package](https://github.com/etheleon/metamaps)
+* Installed graphDB, installation pipeline is still in progress, please use existing database on water.bic.nus.edu.sg or from the public url [metamaps.scelse.nus.edusg:7474](http://metamaps.scelse.nus.edu.sg)
 
 ## User input
-
 * Requires input table consisting of Genera to be simulated and abundance.
 
 **Example**
@@ -76,10 +76,19 @@ Other filters include choosing only out of all possible leaf taxa under a genus 
 Chooses possible leaf taxa, for metagenomic shotgun sequencing recreation
 Taxa with the longest nucleotide sequence length are chosen
 
+##### Outputs
+
+| Output                              | Description                                           |
+| -----                               | -----                                                 |
+| readSim.0100.chosen_completeGenomes | list of chosen genomes and their refseqIDs            |
+| readSim.0101.output.txt             | all sequences under genera with completed genomes     |
+| readSim.0101.output.txt             | all leaf taxa under genera without a completed genome |
+| readSim.0102.chosen_scaffolds.txt   | list of chosen scaffolds and their refseqIDs          |
+
 ### 0200 Database trimming
 
-**scripts:** [readSim.0201.whoTotrimmed.Rmd](readSim.0201.whoTotrimmed.Rmd), 
-
+**scripts:** [readSim.0201.whoTotrimmed.Rmd](readSim.0201.whoTotrimmed.Rmd)
+**scripts:** [readSim.0202.trimDB.pl](readSim.0202.trimDB.pl)
 To simulate real life metagenomic data (genomes without reference sequences), 
 we trim NCBI’s nr database of sequences belonging under the same species as the chosen taxa from `0100 Genome selection`.
 
@@ -89,13 +98,37 @@ while the second reads in the NR database and removes the former to give a trimm
 
 NOTE: We leave species in the genus thauera untrimmed from the NR database
 
+##### Outputs
+
+| Output                  | Description                                               |
+| -----                   | -----                                                     |
+| readSim.0201.output.txt | the species of the chosen leaf taka and the exact taxonID |
+
 ### 0300 template Sequence extraction
 
 **scripts** [readSim.0300.genome_extraction.pl](readSim.0300.genome_extraction.pl)
 
+Extracts and concatenate sequences from the chosen leaf taxon belonging to genera in original list 
+and provides the mapping locations of the individual sequences on the global sequence.
 
-* extracts and concatenate sequences from the chosen taxon of the same genus as in the original input list and provides the mapping locations of the individual sequences on the global sequence
+**scripts** [readSim.0301](readSim.0301.getLength.pl), [readSim.0302](readSim.0301.sequenceLengths.Rmd)
 
-### 0400
-Takes empircal fastQ files as template
+* counts the lengths of the sequences and plots and partitions them based on genome completion status.
+
+##### Outputs
+
+
+| Output                       | Description                                                                                 |
+| -----                        | -----                                                                                       |
+| readSim.0300 dir             | contains fasta files of the leaf taxa belonging to genera of interest; named by the genusID |
+| readSim.0300.out.mapping     | the mapping of the locations                                                                |
+| readSim.0300.out.notRemoved  | sequences which were not found in the refseq genomic database                               |
+| readSim.0300.out.fna         | collection of sequences used                                                                |
+| readSim.0301.lengthtable.txt | the sequence lengths of any given leaf taxon under a genus                                  |
+
+### 0400 Generating simulated metagenomic reads
+
+[In progress]
+Takes empircal fastQ files from the Illumina platform as template, and generates the simualted reads.
+Input fastQ files partitioned by lane.
 

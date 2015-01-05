@@ -1,0 +1,49 @@
+```{r echo=FALSE}
+opts_knit$set(root.dir="/export2/home/uesu/github/readSim/example")
+opts_chunk$set(echo=TRUE, dpi=300, fig.width=8, fig.height=5, fig.path="figures/readSim.0302-")
+knit_hooks$set(htmlcap = function(before, options, envir) {
+  if(!before) {
+    paste('<center><p class="caption">',options$htmlcap,"</p></center>",sep="")
+    }
+    })
+```
+
+
+Total nucleotide length of selected leaf taxa
+====
+
+## Sypnosis
+
+We investigate the total length, in base pairs, representing each of the leaf taxa which in turn represent the given genera.
+
+```{r echo=FALSE, message=FALSE}
+library(ggplot2)
+library(MetamapsDB)
+theme_set(theme_bw())
+```
+
+```{r}
+#Reads in appropriate tables
+data            <- read.table("out/readSim.0301.lengthtable.txt", h=T, sep="\t")
+completeGenomes <- read.table("out/readSim.0100.chosen_completeGenomes",sep="\t",h=T)$parentID
+data$genome = 'scaffolds'
+data$genome[data$genus %in% completeGenomes] = 'complete'
+str(data)
+```
+
+```{r htmlcap="<b>Figure: </b>Total Combined sequence length of genus in log10 scale are given partitioned by availability of genomes"}
+ggplot(data, aes(x=as.factor('Chosen'), y=log10(length)))+
+    geom_boxplot()+
+    geom_jitter(aes(color=as.factor(genome)))+
+    ylab("Length (log10)")+xlab("Chosen genera")+
+    ggtitle("Distribution of chosen genome/sequence sizes")+
+    scale_color_discrete(name="Complete Genome Status")
+```
+
+```{r}
+write.csv(data, file="out/readSim.0301.out.csv")
+```
+
+```{r}
+sessionInfo()
+```

@@ -45,6 +45,7 @@ $cypherurl
 system "$baseDIR/readSim.0300.genome_extraction.pl out/readSim.0100.chosen_completeGenomes out/readSim.0102.chosen_scaffolds.txt $refseqDB_nucl"
 
 system "$baseDIR/readSim.0301.getLength.pl"
+
 my $cmds = <<"EOF";
 library(knitr);
 knit2html("$baseDIR/readSim.0302.sequenceLengths.Rmd", template="example/src/htmltemplate.html")

@@ -1,5 +1,5 @@
 ```{r echo=FALSE}
-opts_chunk$set(echo=TRUE, dpi=300, fig.width=8, fig.height=5)
+opts_chunk$set(echo=TRUE, dpi=300, fig.width=8, fig.height=5, fig.path='figures/readSim.0201-')
 opts_knit$set(root.dir="/export2/home/uesu/github/readSim/example")
 knit_hooks$set(htmlcap = function(before, options, envir) {
   if(!before) {
