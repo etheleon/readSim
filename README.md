@@ -142,7 +142,6 @@ sub phred
     return 10**($score/(-10));
 }
 
-```perl
 map {$score{$_}=phred($_)} 0..100
 ```
 
