@@ -159,7 +159,11 @@ CCATCGCCATCCGCGCCGAGCGCGAAGGCATCACCGTCGAAGTCGCCATGTGGTGGAACGACAGCTACCACGAGAACGTG
 GAGCGCGCCACGGAAGCCCGCGAGATGCGTGCCGCCATCGCGCTGCGGGATGTTGTTGGTGAAGCAGAGCACGTTCTCGTGGTAGCTGTCGTTCCACCACA
 ```
 
+The indel rate was set as a percentage at `0.01`.
+The insert size is set at 150 bp with SD of 5.
+
 #### Breakdown of the script
+
 
 ##### Phred Score calculation
 
@@ -224,5 +228,54 @@ sub rand_nt
     return 'g' if($rand<$globalnt{'a'}+$globalnt{'t'}+$globalnt{'g'});
     return 'c' if($rand<$globalnt{'a'}+$globalnt{'t'}+$globalnt{'g'}+$globalnt{'c'});
     return 'n';
+}
+```
+
+The mutation is based on ....
+```perl
+sub mutate
+{
+    my ($readnt,$qual,$readLength) = @_;
+    my @readnt = split(//, $readnt);
+    my @qual = split(/\t/, $qual);		#stores the probability
+    my $loc = 1;				#this is loc of buffered seqeunce in case of deletion event
+
+    my @outputsequence;	#store sequence
+
+    for(my $i=0; $i < $readLength; $i++) {
+        my $qualityscore = $qual[$i];
+        if(rand()<$qualityscore){
+            #MUTATION
+            #INDEL EVENT #####################################
+            if(rand()<$indelrate)	{
+                ##################################################
+                if(int(rand(2))){ 	#INSERTION
+                    my $extra = rand_nt();
+                    my $extra.= $readnt[$loc];
+                    push @outputsequence, $extra;
+                    $loc++
+                }else{			#DELETION
+                    $loc++;
+                    push @outputsequence, $readnt[$loc];
+                    $loc++
+                }
+                ##################################################
+
+                #SUBSTITUTION EVENT ##############################
+            }else	{
+                ##################################################
+                my $substitutedNT = rand_nt();
+                push @outputsequence, $substitutedNT;
+                $loc++
+            }
+            ##################################################
+        }else{
+            #NO MUTATION
+            push @outputsequence, $readnt[$loc];
+            $loc++;
+        }
+    }
+    my $finalseq = join '', @outputsequence;
+    return $finalseq;
 }
 ```
