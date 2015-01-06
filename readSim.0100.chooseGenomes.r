@@ -153,3 +153,4 @@ write.table(
         ), 
     file="out/readSim.0100.woCompleteGenomes_taxidList",
     row.names=F, sep="\t", quote=F)
+write.table(abundance, file="out/readSim.0100.abundance_NameTaxid.txt",row.names=F,sep="\t",quote=F)

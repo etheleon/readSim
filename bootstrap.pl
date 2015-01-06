@@ -61,21 +61,12 @@ knit(   "$baseDIR/readSim.0302.sequenceLengths.Rmd");
 # 0400 Run simulation
 
 #Concatenate all of the genus sequences into one
-open my $combinedFasta ">", 'out/readSim.0300.combined.fna';
-foreach my $fastaFile (<out/readSim.0300/*>)
-{
-    open my $input, "<", $fasta;
-    while(<$input>){$. == 2 ? print $combinedFasta "$_\n" : print $combinedFasta $_}
-    close $input;
-}
-
-#prep
-system "baseDIR/readSim.0400.presim.r"
+system "cat out/readSim.0300/* > out/readSim.0300.combined.fna"
 
 #NOTE: This can be parallelised, have script to do this might want to consult me if you want to do this
 for my $lanes (<$fastqDIR/*>)
 {
-    system "$baseDIR/readSim.0400.simu.shortgun.pl out/readSim.0300.out.fna $lanes $output data/abundanceProfile.txt";
+    system "$baseDIR/readSim.0400.simu.shortgun.pl out/readSim.0300.combined.fna $pair1 $pair2 $outputPrefix out/readSim.0100.abundance_NameTaxid.txt";
 }
 
 sub knit

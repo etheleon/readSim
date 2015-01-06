@@ -4,74 +4,68 @@ use Modern::Perl '2013';
 use autodie;
 
 die "usage: $0 <chosenGenomes.fna> <template.pair1.fq> <template.pair1.fq> <outputfileprefix> <abundanceInfo>
-(indel-rate: proportion of indel over all errors; default=0.1)\n" unless $#ARGV==4;
+    (indel-rate: proportion of indel over all errors; default=0.1)\n" unless $#ARGV==4;
 
 my ($chosenGenomes, $templateFQ1,$templateFQ2, $outputFile, $abundanceInfo) = @ARGV;
 
 ##################################################
-# Part0: Init
-say "Initializing ...";
+say "## Initializing ...";
 ##################################################
 
-my (
-    $seq,   #hash ref
-    %score,
-    %ntrate,#nucleotide::the frequencies
-    %globalnt,#nucleotide::frequency
-);
+my $seq = {};
+my %score;     #phred score
+my %globalnt;  #nucleotide::frequency
 
 my  $totalAbu;                                       # summed abundance
 my  $id = 0;                                         # For adding to fastq header
 my  $indelrate=0.01;                                 # the INDEl error rate:percentage of errors to be indel
 my  $outputfile = $outputFile;
-    $outputfile =~ s/.+\///; # the outputfile name
+    $outputfile =~ s/.+\///;                         # the outputfile name
 
 #Phred error probabilities
 $score{$_} = phred($_) for 0..100;                  #Probability
 
 ##################################################
 # Part1: read genomes
-say "Reading Genomes ...";
+say "## Reading Genomes/Scaffolds...";
 ##################################################
 
 readFasta($chosenGenomes);
-$seq->{$_}{length} = length($seq->{$_}{sequence}) for keys %$seq;
-say "\tStored ",scalar keys %$seq, " sequences";
+$seq->{$_}{length} = length($seq->{$_}{sequence}) for (keys %$seq);
+say "##\tStored ",scalar keys %$seq, " sequences";
 
 ####################################################
-## Part2: abundance
-say "Reading abundances.. ";
+say "## Reading abundances.. ";
 ###################################################
 
 open my $abundance, '<', $abundanceInfo;
-#UNFINISHED
-#out/sim.0101.out2.txt	#this will read in full 413 taxa (bacteria and archea)
 while(<$abundance>)
 {
+    #taxon   total   taxid
+    #Acaryochloris   667.462796960323        155977
     unless ($. == 1)
     {
         chomp;
-        my ($abu, $genus) = (split /\t/)[1,3];
+        my ($abu, $genus) = (split /\t/)[1,2];
         if (exists $seq->{$genus})
         {
-            #this will only allow abundance to be stored if a sequence of that taxid exists
             $seq->{$genus}{abundance} = $abu;
         }
     }
 }
 
-##abundance summary
+#Abundance as a percentage
 $totalAbu += $seq->{$_}{abundance}                              for keys %$seq;	#total reads per million abundance
 $seq->{$_}{abundance} = ($seq->{$_}{abundance}/$totalAbu)       for keys %$seq;
 
-#calculate Nucleotide Frequency
-say "\tCalculating Nucleotide frequencies";
-ntfreq($_) for keys %$seq;	#will push genus taxid into ntfreq
+say "##\tCalculating Global nt frequencies";
+ntfreq($_) for keys %$seq;
 
-say "\tNucleotide frequencies";
-say "\t\t$_: $globalnt{$_}" for keys %globalnt;
+say "##\t\t$_: $globalnt{$_}" for keys %globalnt;
+state $total += $globalnt{$_} for keys %globalnt;
+say "##\tSums to: $total";
 
-###taxid - range creation:: TAXID: (lower, upper)
+##taxid - range creation:: TAXID: (lower, upper)
 #from the biggest to the smallest
 foreach my $taxid (sort { $seq->{$b}{abundance} <=> $seq->{$a}{abundance} } keys %$seq)
 {
@@ -83,10 +77,9 @@ foreach my $taxid (sort { $seq->{$b}{abundance} <=> $seq->{$a}{abundance} } keys
     $start = $end;
 }
 
-###################################################
-## Simulate Shotgun sequence
-say "Reading quality scores & simulating ...";
-###################################################
+####################################################
+say "## Simulating reads NOW...";
+####################################################
 
 open my $fastqOutputONE,    '>',    $outputFile."_1.fq";
 open my $fastqOutputTWO,    '>',    $outputFile."_2.fq";
@@ -96,7 +89,7 @@ open my $fastqTWO,          '<', $templateFQ2;
 
 while (!eof($fastqONE) and !eof($fastqTWO))
 {
-    #scrapping quality score only;
+    #ignoring rest of fastq, scrapping quality score only;
     <$fastqONE>;<$fastqONE>;<$fastqONE>;	#h1, sequence, h2
     <$fastqTWO>;<$fastqTWO>;<$fastqTWO>;	#h1, sequence, h2
 
@@ -114,11 +107,13 @@ while (!eof($fastqONE) and !eof($fastqTWO))
 
 ##Choosing taxa and loc to pluck sequence out from
 
-    my $taxaofchoice = choosetaxa();
-    processPairReads($taxaofchoice, $readlength, $qualitystringONE, $qualitystringTWO, $qualONE,$qualTWO);
+    my $chosenTaxon= choosetaxa();
+    processPairReads($chosenTaxon, $readlength, $qualitystringONE, $qualitystringTWO, $qualONE,$qualTWO);
 }
 
-say "All done. Please check $outputFile 1.fq/2.fq for results";
+say '## ^Completed^';
+say "## $id reads simulated";
+say "## FastQ files at ", $outputFile,"_1.fq and ",$outputFile, "_2.fq";
 
 ####################################################################################################
 #Functions
@@ -146,40 +141,42 @@ sub ntfreq
 sub mutate
 {
     my ($readnt,$qual,$readLength) = @_;
-    my @readnt = split(//, $readnt);
-    my @qual = split(/\t/, $qual);		#stores the probability
-    my $loc = 1;				#this is loc of buffered seqeunce in case of deletion event
+    my @readnt = split '', $readnt;
+    my @qual   = split /\t/, $qual;       #stores the probability
+    my $loc    = 1;                        #this is loc of buffered seqeunce in case of deletion event
 
-    my @outputsequence;	#store sequence
+    my @outputsequence;
 
     for(my $i=0; $i < $readLength; $i++) {
         my $qualityscore = $qual[$i];
         if(rand()<$qualityscore){
             #MUTATION
-            #INDEL EVENT #####################################
-            if(rand()<$indelrate)	{
-                ##################################################
-                if(int(rand(2))){ 	#INSERTION
+            if(rand()<$indelrate)
+            {
+                #Indel event##################################
+                if(int(rand(2)))
+                {   #INSERTION
                     my $extra = rand_nt();
                     $extra.= $readnt[$loc];
                     push @outputsequence, $extra;
                     $loc++
-                }else{			#DELETION
+                }else
+                {   #DELETION
                     $loc++;
                     push @outputsequence, $readnt[$loc];
                     $loc++
                 }
-                ##################################################
-
-                #SUBSTITUTION EVENT ##############################
-            }else	{
-                ##################################################
+                ##############################################
+            }else
+                #Substitution event###########################
+            {
                 my $substitutedNT = rand_nt();
                 push @outputsequence, $substitutedNT;
                 $loc++
             }
-            ##################################################
-        }else{
+                #############################################
+        }else
+        {
             #NO MUTATION
             push @outputsequence, $readnt[$loc];
             $loc++;
@@ -204,11 +201,11 @@ sub rand_nt
 sub choosetaxa
 {
     my $rand = rand();
-    foreach (keys %$seq)
+    foreach my $taxid (keys %$seq)
     {
-        if($rand > $seq->{$_}{start} & $rand <= $seq->{$_}{end})
+        if($rand > $seq->{$taxid}{start} && $rand <= $seq->{$taxid}{end})
         {
-            return $_;
+            return $taxid;
         }
     }
 }
@@ -226,7 +223,7 @@ sub writeSequence
     my ($id, $sequence, $qual, $nameOfSequence, $start, $readLength,
         $outputfile, $filehandle, $pair) = @_;
 
-    my $header = "READ_$id|taxID|$nameOfSequence|loc|$start-".$start+$readLength."|output|$outputfile/$pair";
+    my $header = "READ_$id|$nameOfSequence|$start-".eval{$start+$readLength}."|$outputfile/$pair";
         say $filehandle '@'.$header;
         say $filehandle $sequence;
         say $filehandle "+";
@@ -265,23 +262,19 @@ sub processPairReads
 sub readFasta
 {
     my ($fastaFile) = @_;
-    my $taxid;
-
+    my ($child, $genus);
     open my $in, '<', $fastaFile;
     while (<$in>)
     {
-        my $genus;
-        my $child;
         next if(m/^\s*$/); #remove blank lines
-        if(m/>\s*?(\S+)/)
+        if(m/^>\s*?(\S+)/)
         {
             #>genus|1007|leaftaxa|984262
             chomp;
-            ($genus, $child) = (split /\|/, $1)[1];  #the taxid of the sequence/genome
-            $seq->{$genus}++;
+            ($genus, $child) = (split /\|/, $1)[1,3];  #the taxid of the sequence/genome
         }else{
             chomp;
-            $seq->{$genus}{'sequence'} .= $_;
+            $seq->{$genus}{sequence} .= $_;
         }
     }
     close $in;

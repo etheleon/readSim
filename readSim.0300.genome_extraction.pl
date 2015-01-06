@@ -105,7 +105,7 @@ sub joinNsplit  #concatenates the sequences together to single fastafile
     {
         $loc{$genus} = 0;
         open my $taxaoutput, '>', $location;
-        say $taxaoutput join "|", '>genus', $genus, 'leaftaxa', $taxid;
+        say $taxaoutput join "|", "\n".'>genus', $genus, 'leaftaxa', $taxid;
         print $taxaoutput $sequence;
         close $taxaoutput;
 
