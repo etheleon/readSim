@@ -4,6 +4,7 @@ use Modern::Perl qw|2013|;
 use autodie;
 use Getopt::Long;
 use Statistics::R;
+use Parallel::ForkManager;
 
 my ($abundanceProfile,
     $cypherurl,
@@ -28,11 +29,14 @@ GetOptions (
 #+------------------------------------------------
 ##################################################
 
-my $fastqDIR =~ s/\/$//;
 my $R = Statistics::R->new() ;
+my $pm = Parallel::ForkManager->new($threads);
+
+my $fastqDIR =~ s/\/$//;
+my $baseDIR = join '/', @path;
+
 my @path = (split /\//, $0);
 pop @path;
-my $baseDIR = join '/', @path;
 
 mkdir 'out' unless -d 'out';
 mkdir 'figures' unless -d 'figures';
@@ -63,11 +67,16 @@ knit(   "$baseDIR/readSim.0302.sequenceLengths.Rmd");
 #Concatenate all of the genus sequences into one
 system "cat out/readSim.0300/* > out/readSim.0300.combined.fna"
 
-#NOTE: This can be parallelised, have script to do this might want to consult me if you want to do this
+#problem how am I going to feed all of this into readSim.0401
+#Don't know don't care will fix this once xianghui asks if not save my time;
 for my $lanes (<$fastqDIR/*>)
 {
-    system "$baseDIR/readSim.0400.simu.shortgun.pl out/readSim.0300.combined.fna $pair1 $pair2 $outputPrefix out/readSim.0100.abundance_NameTaxid.txt";
+
+    $pm->start and next;
+    system "$baseDIR/readSim.0401.readsimulation.pl out/readSim.0300.combined.fna $pair1 $pair2 $outputPrefix out/readSim.0100.abundance_NameTaxid.txt";
+    $pm->finish;
 }
+$pm->wait_all_children;
 
 sub knit
 {

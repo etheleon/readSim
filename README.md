@@ -3,32 +3,48 @@ readSim
 
 ## Introduction 
 
-A Perl and R pipeline for simulating metagenomic reads from a highly complex community based on an abundance profile
-with introduced sequencing errors based on empirically derived fastQ files of a 
-full HiSeq 2500 Illumina run.
+A Perl and R pipeline for simulating metagenomic reads from a highly complex community. 
+The simulation is based on an \*abundance profile, includes introduced sequencing errors based 
+on empirically derived fastQ files.
 
-Abundance profile is estimated using RPM values of reads homology mapped to existing database (NCBI RefSeq) using [MEGAN](http://ab.inf.uni-tuebingen.de/software/megan5/).
+\*Abundance profile is estimated using RPM values of reads homology mapped to existing database (NCBI RefSeq) using [MEGAN](http://ab.inf.uni-tuebingen.de/software/megan5/).
 
 ## Prerequisites
 
 ### Dependencies 
 
 #### Data
- 
+
 * [NCBI Genome Reports](ftp://ftp.ncbi.nih.gov/genomes/GENOME_REPORTS updated daily)
 * NCBI taxonomy 
-* Sequence database (NCBI RefSeq)
+* Sequence database 
+  * NCBI RefSeq
+  * NCBI NR
 
 #### Software
 
-* Neo4j database loaded with NCBI taxonomy (setup file is still being made)
-* [MetamapsDB R package](https://github.com/etheleon/metamaps)
-* Installed graphDB, installation pipeline is still in progress, please use existing database on water.bic.nus.edu.sg or from the public url [metamaps.scelse.nus.edusg:7474](http://metamaps.scelse.nus.edu.sg)
+* Perl 5.18
+  * autodie
+  * Modern::Perl
+  * Parallel::ForkManager
+  * Statistics::R
+  * File::Basename
+  * Bio::SeqIO
+  * REST::Neo4p
+  * REST::Neo4p::Query
+
+* R 3.1.1
+  * ggplot2
+  * dplyr
+  * [MetamapsDB R package](https://github.com/etheleon/metamaps) for interfacing with the graphDB
+  * functional
+  * getopt
+
+* [Neo4j](http://neo4j.com/download/)
+* Installed graphDB, installation pipeline unpublished, msg me if interested otherwise please use existing database on water.bic.nus.edu.sg or from the public url [metamaps.scelse.nus.edusg:7474](http://metamaps.scelse.nus.edu.sg).
 
 ## User input
-* Requires input table consisting of Genera to be simulated and abundance.
-
-**Example**
+* Requires input table of 1. **Genera** and **abundance**.
 
 |Genus                      |Abundance          |
 |---------------------------|-------------------|
@@ -37,12 +53,11 @@ Abundance profile is estimated using RPM values of reads homology mapped to exis
 |Sorangium                  |18241.7170368186   |
 |Mycobacterium              |14892.9966161738   |
 |Candidatus Accumulibacter  |11906.5856237162   |
-Caution: Currently only supports simulating using full name.
-This is flawed because there are genera with the same genus epithet. 
-eg. *missing*
 
-## Installation
-After cloning the repository, 
+Caution: Currently only supports simulating using full name.
+BUG:: This is flawed because there are genera with the same genus epithet. Pipeline throws away some instances where the above cannot be resolved
+
+Click here for [example input file](./example/data/abundanceProfile.txt)
 
 
 ## Usage
@@ -148,14 +163,14 @@ Input fastQ files partitioned by lane.
 
 #### Header of output files 
 ```
-readID|taxID|ncbiTaxonomyID|loc|location on concatenated sequence|output|lane/pair
+readID|ncbiTaxonomyID|location on concatenated sequence|outputFile/pairID
 ```
 
 Example:
 ```
->simuREAD_0|taxID|256616|loc|7302-7403|output|s_1/1
+>READ_0|256616|7302-7403|s_1/1
 CCATCGCCATCCGCGCCGAGCGCGAAGGCATCACCGTCGAAGTCGCCATGTGGTGGAACGACAGCTACCACGAGAACGTGCTCTGCTTCACCAACAACATC
->simuREAD_0|taxID|256616|loc|7302-7403|output|s_1/2
+>READ_0|256616|7302-7403|s_1/2
 GAGCGCGCCACGGAAGCCCGCGAGATGCGTGCCGCCATCGCGCTGCGGGATGTTGTTGGTGAAGCAGAGCACGTTCTCGTGGTAGCTGTCGTTCCACCACA
 ```
 
