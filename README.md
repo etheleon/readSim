@@ -118,7 +118,7 @@ We trim NCBI’s nr protein database of sequences belonging under the same speci
 The first script hunts for all leaf taxa belonging to the same species as the chosen genomes, 
 while the second reads in the NR database and removes the former to give a trimmed NR.
 
-NOTE: We leave species in the genus thauera untrimmed from the NR database
+NOTE: We leave species in the genus Thauera untrimmed from the NR database.
 
 ##### Outputs
 
@@ -138,7 +138,6 @@ and provides the mapping locations of the individual sequences on the global seq
 * counts the lengths of the sequences and plots and partitions them based on genome completion status.
 
 ##### Outputs
-
 
 | Output                          | Description                                                                                 |
 | -----                           | -----                                                                                       |
@@ -170,5 +169,3 @@ GAGCGCGCCACGGAAGCCCGCGAGATGCGTGCCGCCATCGCGCTGCGGGATGTTGTTGGTGAAGCAGAGCACGTTCTCGT
 
 The indel rate was set as a percentage at `0.01`.
 The insert size is set at 150 bp with SD of 5.
-
-

@@ -49,8 +49,7 @@ RETURN
    head(labels(highest)) as rankGenus"
 
 ##Part1::From the complete genome list 
-completeGenomeSelectedSpecies =
-do.call(rbind,
+completeGenomeSelectedSpecies = do.call(rbind,
         lapply(as.character(unique(chosen_genomes$taxid)), function(x){
                dbquery(query,list(taxaid=x),cypherurl=config$cypherurl)
         })      )

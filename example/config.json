@@ -14,7 +14,8 @@
             ["s_8_1.filtered.fastq","s_8_2.filtered.fastq"]
         ]
     },
-    "cypherurl": "http://192.168.100.1:7474",
+    "cypherurl": "http://192.168.100.1:7474/db/data/cypher",
+    "cypherurlperl": "http://192.168.100.1:7474",
     "refseq" : "/export2/home/uesu/db/refseq/arch2/",
     "ncbiTaxonomy" : "/export2/home/uesu/db/taxonomy/",
     "nr": "/export2/home/uesu/github/readSim/example/data/db/nr/"
