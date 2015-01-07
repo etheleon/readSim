@@ -1,0 +1,21 @@
+{
+    "abundance" : "/export2/home/uesu/github/readSim/example/data/abundanceProfile.txt",
+    "fastq": {
+        "dir" : "/export2/ulu_pandan2011/data/batch1_gDNA_illumina/filtered_fastq/",
+        "files" :
+        [
+            ["s_1_1.filtered.fastq","s_1_2.filtered.fastq"],
+            ["s_2_1.filtered.fastq","s_2_2.filtered.fastq"],
+            ["s_3_1.filtered.fastq","s_3_2.filtered.fastq"],
+            ["s_4_1.filtered.fastq","s_4_2.filtered.fastq"],
+            ["s_5_1.filtered.fastq","s_5_2.filtered.fastq"],
+            ["s_6_1.filtered.fastq","s_6_2.filtered.fastq"],
+            ["s_7_1.filtered.fastq","s_7_2.filtered.fastq"],
+            ["s_8_1.filtered.fastq","s_8_2.filtered.fastq"]
+        ]
+    },
+    "cypherurl": "http://192.168.100.1:7474",
+    "refseq" : "/export2/home/uesu/db/refseq/arch2/",
+    "ncbiTaxonomy" : "/export2/home/uesu/db/taxonomy/",
+    "nr": "/export2/home/uesu/github/readSim/example/data/db/nr/"
+}

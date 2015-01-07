@@ -30,12 +30,12 @@ str(data)
 ```
 
 ```
-## 'data.frame':	25344 obs. of  5 variables:
-##  $ taxid         : int  114 114 114 883151 883151 883151 883151 883151 883151 883151 ...
-##  $ genus         : int  113 113 113 76831 76831 76831 76831 76831 76831 76831 ...
-##  $ gi            : int  310975146 636558655 645322082 514961276 514961648 514961913 514961920 514961924 514961925 514961929 ...
-##  $ refseq        : Factor w/ 25344 levels "NC_002806.1",..: 128 421 548 24080 24081 24082 24083 24084 24085 24086 ...
-##  $ combinedLength: int  4428 4428 4428 4040949 4040949 4040949 4040949 4040949 4040949 4040949 ...
+## 'data.frame':	0 obs. of  5 variables:
+##  $ taxid         : logi 
+##  $ genus         : logi 
+##  $ gi            : logi 
+##  $ refseq        : logi 
+##  $ combinedLength: logi
 ```
 
 ```r
@@ -46,12 +46,19 @@ summarise(numSeq=n(),
           numtaxa=length(unique(taxid)), 
           totLength=sum(as.numeric(combinedLength))) %>%
 mutate(ratio = numSeq/numtaxa)
+```
+
+```
+## Error in eval(expr, envir, enclos): not compatible with requested type
+```
+
+```r
 numGenus = length(unique(data$genus))
 numTaxa  = length(unique(data$taxid))
 ```
 
-A total of 80 genera were without completed completed genomes. 
-A total of 640 leaf taxa under the former.
+A total of 0 genera were without completed completed genomes. 
+A total of 0 leaf taxa under the former.
 
 
 ```r
@@ -61,7 +68,11 @@ geom_text(data=subset(d2, numSeq > 20000| numtaxa >=50 ), aes(label=genus), colo
 xlab("# taxa")+ylab("# sequences")
 ```
 
-![plot of chunk unnamed-chunk-4](figures/readSim.0102-unnamed-chunk-4-1.png) <center><p class="caption"><b>Figure:</b> Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following: > 20000 sequences or >50 taxa</p></center>
+```
+## Error in ggplot(d2, aes(y = numSeq, x = numtaxa)): object 'd2' not found
+```
+
+<center><p class="caption"><b>Figure:</b> Number of fastA sequences within a genus against the number of taxa within a the same genus. Annotated genus are based on the following: > 20000 sequences or >50 taxa</p></center>
 
 ## Data Processing
 
@@ -82,19 +93,19 @@ str(chosen)
 ```
 
 ```
-## Classes 'grouped_df', 'tbl_df', 'tbl' and 'data.frame':	7861 obs. of  5 variables:
-##  $ taxid         : int  485913 485913 485913 485913 485913 485913 485913 485913 485913 485913 ...
-##  $ genus         : int  363276 363276 363276 363276 363276 363276 363276 363276 363276 363276 ...
-##  $ gi            : int  343201746 298240972 298244067 298246545 298248889 298251200 298252301 298252372 298252405 298252427 ...
-##  $ refseq        : Factor w/ 25344 levels "NC_002806.1",..: 181 3252 3253 3254 3255 3256 3257 3258 3259 3260 ...
-##  $ combinedLength: int  13662972 13662972 13662972 13662972 13662972 13662972 13662972 13662972 13662972 13662972 ...
+## Classes 'grouped_df', 'tbl_df', 'tbl' and 'data.frame':	0 obs. of  5 variables:
+##  $ taxid         : logi 
+##  $ genus         : logi 
+##  $ gi            : logi 
+##  $ refseq        : logi 
+##  $ combinedLength: logi 
 ##  - attr(*, "vars")=List of 1
 ##   ..$ : symbol genus
 ```
 
 ### WGS availability 
 
-404 taxa were removed because they have no WGS projects listed in NCBI, this resulted in 516 sequences trimmed out of a total of 25344.
+0 taxa were removed because they have no WGS projects listed in NCBI, this resulted in 0 sequences trimmed out of a total of 0.
 
 
 ```r
@@ -135,14 +146,12 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_1.0.0.99 dplyr_0.3.0.2    knitr_1.8        vimcom_1.0-6    
-## [5] setwidth_1.0-3   colorout_1.0-3  
+## [1] ggplot2_1.0.0.99 dplyr_0.3.0.2    knitr_1.8       
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] assertthat_0.1   colorspace_1.2-4 DBI_0.3.1        digest_0.6.8    
 ##  [5] evaluate_0.5.5   formatR_1.0      grid_3.1.1       gtable_0.1.2    
-##  [9] labeling_0.3     lazyeval_0.1.10  magrittr_1.5     MASS_7.3-35     
-## [13] munsell_0.4.2    parallel_3.1.1   plyr_1.8.1       proto_0.3-10    
-## [17] Rcpp_0.11.3      reshape2_1.4.1   scales_0.2.4     stringr_0.6.2   
-## [21] tools_3.1.1
+##  [9] lazyeval_0.1.10  magrittr_1.5     MASS_7.3-35      munsell_0.4.2   
+## [13] parallel_3.1.1   plyr_1.8.1       proto_0.3-10     Rcpp_0.11.3     
+## [17] reshape2_1.4.1   scales_0.2.4     stringr_0.6.2    tools_3.1.1
 ```

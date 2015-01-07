@@ -23,7 +23,9 @@ species belonging under these species from the NR database
 library(MetamapsDB)
 library(dplyr)
 library(ggplot2)
+library(RJSONIO)
 theme_set(theme_bw())
+config = fromJSON("config.json")
 ```
 
 ## Part1
@@ -50,14 +52,14 @@ RETURN
 completeGenomeSelectedSpecies =
 do.call(rbind,
         lapply(as.character(unique(chosen_genomes$taxid)), function(x){
-               dbquery(query,list(taxaid=x))
+               dbquery(query,list(taxaid=x),cypherurl=config$cypherurl)
         })      )
 
 ##Part2::From the incomplete genome list 
 incompleteGenomeSelectedSpecies  = 
 do.call(rbind,
         lapply(as.character(unique(chosen_nogenomes$taxid)), function(x){
-               dbquery(query,list(taxaid=x))
+               dbquery(query,list(taxaid=x),cypherurl=config$cypherurl)
         })      )
 
 selectedSpecies = rbind(completeGenomeSelectedSpecies, incompleteGenomeSelectedSpecies)
@@ -84,7 +86,7 @@ head(labels(lowest)) as rank"
 lotr = 
 do.call(rbind,
         lapply(as.character(unique(selectedSpecies$species)), function(x){
-               dbquery(query,list(taxaid=as.character(x)))
+               dbquery(query,list(taxaid=as.character(x)), cypherurl=config$cypherurl)
         })      )
 selected2 = merge(selectedSpecies[, c("species", "genus")], lotr, by="species",all=T)
 selected2 =as.data.frame(t(apply(selected2,1,unlist)))	#problematic df structure

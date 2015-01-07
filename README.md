@@ -19,7 +19,7 @@ on empirically derived fastQ files.
 * NCBI taxonomy 
 * Sequence database 
   * NCBI RefSeq
-  * NCBI NR
+  * NCBI NR (protein)
 
 #### Software
 
@@ -32,19 +32,21 @@ on empirically derived fastQ files.
   * Bio::SeqIO
   * REST::Neo4p
   * REST::Neo4p::Query
+  * Cwd
 
 * R 3.1.1
   * ggplot2
   * dplyr
   * [MetamapsDB R package](https://github.com/etheleon/metamaps) for interfacing with the graphDB
-  * functional
   * getopt
 
 * [Neo4j](http://neo4j.com/download/)
 * Installed graphDB, installation pipeline unpublished, msg me if interested otherwise please use existing database on water.bic.nus.edu.sg or from the public url [metamaps.scelse.nus.edusg:7474](http://metamaps.scelse.nus.edu.sg).
 
 ## User input
-* Requires input table of 1. **Genera** and **abundance**.
+1. [Input table](./example/data/abundanceProfile.txt) of 1. **Genera** and **abundance**
+2. [Input table](./example/data/fastqLocations) mapping the fastq pairs 
+3. [cypherurl](./cypherurl) which lists neo4j address
 
 |Genus                      |Abundance          |
 |---------------------------|-------------------|
@@ -57,25 +59,15 @@ on empirically derived fastQ files.
 Caution: Currently only supports simulating using full name.
 BUG:: This is flawed because there are genera with the same genus epithet. Pipeline throws away some instances where the above cannot be resolved
 
-Click here for [example input file](./example/data/abundanceProfile.txt)
-
-
 ## Usage
 
 A [bootstrap](bootstrap.pl) perl script automates the whole process. 
-An example input will be similar to the following
+An example input will be similar to the following:
 
 ```
-perl bootstrap.pl --abundance=input --cypherurl=graphDatabaseAddress:port/db/data/cypher --refseqDB_nucl=/home/user/db/refseq/ --taxDB=/home/user/db/NCBItaxonomy/ --threads=#integer
+perl bootstrap.pl config.json 20
 ```
-
-| Arguments     | Description                                                                                          |
-| ----          | ----                                                                                                 |
-| abundance     | input table with genusName and abundance (see above)                                                 |
-| cypherurl     | The address of the graph database. Default for `cypherurl` set to head node on water.bic.nus.edu.sg. |
-| refseqDB_nucl | NCBI’s refseq database (only archea and bacteria)                                                    |
-| taxDB         | NCBI’s taxonomy database                                                                             |
-| Threads       | The number of threads/CPU cores available on the machine                                             |
+an example config.json can be found [here](config.json)
 
 ## Description
 
@@ -113,13 +105,15 @@ Taxa with the longest nucleotide sequence length are chosen
 | readSim.0101.output.txt             | all leaf taxa under genera without a completed genome |
 | readSim.0102.chosen_scaffolds.txt   | list of chosen scaffolds and their refseqIDs          |
 
-### 0200 Database trimming
+### 0200 Reference Protein Database trimming
 
 **scripts:** [readSim.0201.whoTotrimmed.Rmd](readSim.0201.whoTotrimmed.Rmd)
 **scripts:** [readSim.0202.trimDB.pl](readSim.0202.trimDB.pl)
-To simulate real life metagenomic data (genomes without reference sequences), 
-we trim NCBI’s nr database of sequences belonging under the same species as the chosen taxa from `0100 Genome selection`.
 
+To simulate a closer to reality scenerio where metagenomic reference sequences are not found in the any of the databases, 
+we prepare a protein reference database (based on nr) which we will carry out a distant homology search using a blastx like aligner eg. diamond or rapsearch (preference be diamond because of the the computational speed up).
+
+We trim NCBI’s nr protein database of sequences belonging under the same species as the chosen taxa from `0100 Genome selection`.
 
 The first script hunts for all leaf taxa belonging to the same species as the chosen genomes, 
 while the second reads in the NR database and removes the former to give a trimmed NR.
