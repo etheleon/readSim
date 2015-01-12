@@ -1,0 +1,15 @@
+{
+    "abundance" : "/export2/home/uesu/github/readSim/example/data/abundanceProfile.txt",
+    "fastq": {
+        "dir" : "/export2/home/uesu/github/readSim/example/data/fq",
+        "files" :
+        [
+            ["s_1_1.fq","s_1_2.fq","s_1"]
+        ]
+    },
+    "cypherurl": "http://192.168.100.1:7474/db/data/cypher",
+    "cypherurlperl": "http://192.168.100.1:7474",
+    "refseq" : "/export2/home/uesu/db/refseq/arch2/",
+    "ncbiTaxonomy" : "/export2/home/uesu/db/taxonomy/",
+    "nr": "/export2/home/uesu/github/readSim/example/data/db/nr/"
+}

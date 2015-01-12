@@ -19,8 +19,7 @@ my %globalnt;  #nucleotide::frequency
 my  $totalAbu;                                       # summed abundance
 my  $id = 0;                                         # For adding to fastq header
 my  $indelrate=0.01;                                 # the INDEl error rate:percentage of errors to be indel
-my  $outputfile = $outputFile;
-    $outputfile =~ s/.+\///;                         # the outputfile name
+    $outputFile =~ s/.+\///;                         # the outputfile name
 
 #Phred error probabilities
 $score{$_} = phred($_) for 0..100;                  #Probability
@@ -81,8 +80,8 @@ foreach my $taxid (sort { $seq->{$b}{abundance} <=> $seq->{$a}{abundance} } keys
 say "## Simulating reads NOW...";
 ####################################################
 
-open my $fastqOutputONE,    '>',    $outputFile."_1.fq";
-open my $fastqOutputTWO,    '>',    $outputFile."_2.fq";
+open my $fastqOutputONE,    '>',    "out/".$outputFile."_1.fq";
+open my $fastqOutputTWO,    '>',    "out/".$outputFile."_2.fq";
 
 open my $fastqONE,          '<', $templateFQ1;
 open my $fastqTWO,          '<', $templateFQ2;
@@ -113,7 +112,7 @@ while (!eof($fastqONE) and !eof($fastqTWO))
 
 say '## ^Completed^';
 say "## $id reads simulated";
-say "## FastQ files at ", $outputFile,"_1.fq and ",$outputFile, "_2.fq";
+say "## FastQ files at out/",$outputFile,"_1.fq and out/",$outputFile, "_2.fq";
 
 ####################################################################################################
 #Functions
@@ -221,9 +220,9 @@ sub processQual
 sub writeSequence
 {
     my ($id, $sequence, $qual, $nameOfSequence, $start, $readLength,
-        $outputfile, $filehandle, $pair) = @_;
+        $outputFile, $filehandle, $pair) = @_;
 
-    my $header = "READ_$id|$nameOfSequence|$start-".eval{$start+$readLength}."|$outputfile/$pair";
+    my $header = "READ_$id|$nameOfSequence|$start-".eval{$start+$readLength}."|$outputFile/$pair";
         say $filehandle '@'.$header;
         say $filehandle $sequence;
         say $filehandle "+";
@@ -243,7 +242,7 @@ sub processPairReads
     my $newsequence = mutate($readnt, $qualONE,$readLength);
 
             writeSequence($id,$newsequence,$asciiQualONE,$taxaofchoice,$genomelocation,
-            $readLength,$outputfile,$fastqOutputONE,1);
+            $readLength,$outputFile,$fastqOutputONE,1);
     ##################################################
     #read two
     ##################################################
@@ -255,7 +254,7 @@ sub processPairReads
     $newsequence = mutate($readnt, $qualTWO, $readLength);
 
             writeSequence($id, $newsequence,$asciiQualTWO,$taxaofchoice,$genomelocation,
-            $readLength,$outputfile,$fastqOutputTWO, 2);
+            $readLength,$outputFile,$fastqOutputTWO, 2);
     $id++;
 }
 

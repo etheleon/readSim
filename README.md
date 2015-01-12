@@ -45,8 +45,7 @@ on empirically derived fastQ files.
 
 ## User input
 1. [Input table](./example/data/abundanceProfile.txt) of 1. **Genera** and **abundance**
-2. [Input table](./example/data/fastqLocations) mapping the fastq pairs 
-3. [cypherurl](./cypherurl) which lists neo4j address
+2. [cypherurl](./cypherurl) which lists neo4j address
 
 |Genus                      |Abundance          |
 |---------------------------|-------------------|
@@ -57,6 +56,7 @@ on empirically derived fastQ files.
 |Candidatus Accumulibacter  |11906.5856237162   |
 
 Caution: Currently only supports simulating using full name.
+
 BUG:: This is flawed because there are genera with the same genus epithet. Pipeline throws away some instances where the above cannot be resolved
 
 ## Usage
@@ -67,7 +67,7 @@ An example input will be similar to the following:
 ```
 perl bootstrap.pl config.json 20
 ```
-an example config.json can be found [here](config.json)
+an example config.json can be found [here](example/config.json)
 
 ## Description
 

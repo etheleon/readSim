@@ -53,14 +53,13 @@ knit    ("$baseDIR/readSim.0302.sequenceLengths.Rmd");
 # 0400 Run simulation
 system "cat out/readSim.0300/* > out/readSim.0300.combined.fna";
 
-my $outputPrefix = "out/readSim.0400";
-mkdir $outputPrefix unless -d $outputPrefix;
 foreach my $lane (@{$config->{fastq}{files}})
 {
     $pm->start and next;
     ##################################################
     my $pair1 = $lane->[0];
     my $pair2 = $lane->[1];
+    my $outputPrefix = $lane->[2];
     my $fastqDIR = $config->{fastq}{dir};
     $fastqDIR =~ s/\/$//;
     system "$baseDIR/readSim.0400.readsimulation.pl out/readSim.0300.combined.fna $fastqDIR/$pair1 $fastqDIR/$pair2 $outputPrefix out/readSim.0100.abundance_NameTaxid.txt";
