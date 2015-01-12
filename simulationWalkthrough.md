@@ -1,5 +1,21 @@
 #### Breakdown of the script
 
+
+#### Data structure
+```perl
+#Example for one sequence
+$seq = {
+    genus => {
+        sequence    => ‘ATCG’,      #sequence for that genus
+        length      => 300,         #length of the sequence
+        abundance   => 0.75         #relative abundance (as percentage)
+        start       => 0            #the start position on the uniform distribution (badly phrased)
+        end         => 0.75         #the end position on the uniform distribution
+    }
+}
+```
+
+
 ##### Phred Score calculation
 
 The phred and map functions stores 1.) Phred Quality Score and 2.) base-calling error probabilities 
@@ -71,40 +87,42 @@ The mutation is based on ....
 sub mutate
 {
     my ($readnt,$qual,$readLength) = @_;
-    my @readnt = split(//, $readnt);
-    my @qual = split(/\t/, $qual);		#stores the probability
-    my $loc = 1;				#this is loc of buffered seqeunce in case of deletion event
+    my @readnt = split '', $readnt;
+    my @qual   = split /\t/, $qual;       #stores the probability
+    my $loc    = 1;                        #this is loc of buffered seqeunce in case of deletion event
 
-    my @outputsequence;	#store sequence
+    my @outputsequence;
 
     for(my $i=0; $i < $readLength; $i++) {
         my $qualityscore = $qual[$i];
         if(rand()<$qualityscore){
             #MUTATION
-            #INDEL EVENT #####################################
-            if(rand()<$indelrate)	{
-                ##################################################
-                if(int(rand(2))){ 	#INSERTION
+            if(rand()<$indelrate)
+            {
+                #Indel event##################################
+                if(int(rand(2)))
+                {   #INSERTION
                     my $extra = rand_nt();
-                    my $extra.= $readnt[$loc];
+                    $extra.= $readnt[$loc];
                     push @outputsequence, $extra;
                     $loc++
-                }else{			#DELETION
-                    $loc++;
+                }else
+                {   #DELETION
+                    $loc++; #shouldnt this be recursive?
                     push @outputsequence, $readnt[$loc];
                     $loc++
                 }
-                ##################################################
-
-                #SUBSTITUTION EVENT ##############################
-            }else	{
-                ##################################################
+                ##############################################
+            }else
+                #Substitution event###########################
+            {
                 my $substitutedNT = rand_nt();
                 push @outputsequence, $substitutedNT;
                 $loc++
             }
-            ##################################################
-        }else{
+                #############################################
+        }else
+        {
             #NO MUTATION
             push @outputsequence, $readnt[$loc];
             $loc++;
