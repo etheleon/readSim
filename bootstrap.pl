@@ -7,7 +7,7 @@ use JSON::Parse 'json_file_to_perl';
 use Parallel::ForkManager;
 use Cwd 'abs_path';
 
-die "$0 <config.json> <threads>\n" unless $#ARGV == 1;
+die "$0 <config.json> <threads> <restart>\n" unless $#ARGV == 1;
 
 ##################################################
 #+------------------------------------------------
@@ -15,7 +15,7 @@ die "$0 <config.json> <threads>\n" unless $#ARGV == 1;
 #+------------------------------------------------
 ##################################################
 
-my ($configFile, $thread) = @ARGV;
+my ($configFile, $thread, $restart) = @ARGV;
 my $config = json_file_to_perl($configFile);
 my $pm = Parallel::ForkManager->new($thread);
 
@@ -28,7 +28,10 @@ mkdir 'out' unless -d 'out';
 mkdir 'figures' unless -d 'figures';
 mkdir 'data' unless -d 'data';
 
-system "rm out/readSim.0300/* && rm out/readSim.0300*";
+if($restart)
+{
+    system "rm out/readSim.0300/* && rm out/readSim.0300*";
+}
 
 ##################################################
 #+------------------------------------------------

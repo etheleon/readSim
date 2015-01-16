@@ -20,12 +20,17 @@ my $homeDIR = join '/', @home;
 my $pwd = cwd();
 
 my $pm = new Parallel::ForkManager($threads);
-unless(-e "$nrDIR/nr"){
+unless(-e "$nrDIR/nr")
+{
     system "gunzip -c $nrDIR/nr.gz > $nrDIR/nr";
     say "##\t$0 Finished unzipping nr.gz"
 }
-#system "$homeDIR/fasta-splitter.pl --n-parts=$threads $nrDIR/nr";
-#system "mv *part* $nrDIR/";
+
+unless(glob "$nrDIR/*part*" )
+{
+    system "$homeDIR/fasta-splitter.pl --n-parts=$threads $nrDIR/nr";
+    system "mv *part* $nrDIR/";
+}
 
 #Store condemned taxID
 open my $tobedeleted, "<", $list;
