@@ -65,7 +65,7 @@ foreach my $lane (@{$config->{fastq}{files}})
     my $outputPrefix = $lane->[2];
     my $fastqDIR = $config->{fastq}{dir};
     $fastqDIR =~ s/\/$//;
-    system "$baseDIR/readSim.0400.readsimulation.pl out/readSim.0300.combined.fna $fastqDIR/$pair1 $fastqDIR/$pair2 $outputPrefix out/readSim.0100.abundance_NameTaxid.txt";
+    system "$baseDIR/readSim.0400.readsimulation.pl out/readSim.0300.combined.fna $fastqDIR/$pair1 $fastqDIR/$pair2 $outputPrefix out/readSim.0100.abundance_NameTaxid.txt 64";
     ##################################################
     $pm->finish;
 };
