@@ -3,10 +3,10 @@
 use Modern::Perl '2013';
 use autodie;
 
-die "usage: $0 <chosenGenomes.fna> <template.pair1.fq> <template.pair1.fq> <outputfileprefix> <abundanceInfo>
-    (indel-rate: proportion of indel over all errors; default=0.1)\n" unless $#ARGV==4;
+die "usage: $0 <chosenGenomes.fna> <template.pair1.fq> <template.pair1.fq> <outputfileprefix> <abundanceInfo> <phred type>
+    (indel-rate: proportion of indel over all errors; default=0.1)\n" unless $#ARGV==5;
 
-my ($chosenGenomes, $templateFQ1,$templateFQ2, $outputFile, $abundanceInfo) = @ARGV;
+my ($chosenGenomes, $templateFQ1,$templateFQ2, $outputFile, $abundanceInfo, $phredType) = @ARGV;
 
 ##################################################
 say "## Initializing ...";
@@ -212,7 +212,8 @@ sub choosetaxa
 sub processQual
 {
     my ($qual) = @_;
-    my @qual = map { ord($_) - 33 } split('',$qual);	#convert ASCII to indexNum
+    my @qual = map { ord($_) - $phredType} split('',$qual);	#convert ASCII to indexNum Phred+64
+    #my @qual = map { ord($_) - 33 } split('',$qual);	#convert ASCII to indexNum Phred+33
     my $qualitystring = join "\t", map {$score{$_}} @qual;
     return $qualitystring;
 }
